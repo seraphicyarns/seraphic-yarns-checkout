@@ -64,7 +64,19 @@ station.addEventListener('change',()=>{
  if(s){document.getElementById('addressText').textContent=s["Pickup Station Address / Landmarks"];document.getElementById('address').style.display='block';}
 });
 
-const BACKEND_URL = "https://seraphic-yarns-backend.vercel.app";
+const BACKEND_URL =
+  "https://seraphic-yarns-backend.vercel.app";
+
+let checkoutData = {
+  session: null,
+  delivery_method: null,
+  customer: {
+    name: "",
+    phone: "",
+    email: ""
+  },
+  delivery: {}
+};
 
 function moneyFromCents(cents) {
   return "KSh " + (Number(cents || 0) / 100).toLocaleString("en-KE", {
@@ -85,50 +97,201 @@ function escapeHtml(value) {
   });
 }
 
+function getSessionToken() {
+  return new URLSearchParams(window.location.search).get("session");
+}
+
+function getSelectedDeliveryMethod() {
+  const selected = document.querySelector(
+    'input[name="delivery"]:checked'
+  );
+
+  return selected ? selected.value : null;
+}
+
+function validatePhone(phone) {
+  const cleaned = phone.replace(/\s+/g, "");
+
+  return /^(\+254|254|0)7\d{8}$/.test(cleaned);
+}
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function collectCheckoutInformation() {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  const deliveryMethod = getSelectedDeliveryMethod();
+
+  if (!name) {
+    throw new Error("Please enter your full name.");
+  }
+
+  if (!phone) {
+    throw new Error("Please enter your phone number.");
+  }
+
+  if (!validatePhone(phone)) {
+    throw new Error(
+      "Please enter a valid Kenyan phone number, for example 0712345678."
+    );
+  }
+
+  if (!email) {
+    throw new Error("Please enter your email address.");
+  }
+
+  if (!validateEmail(email)) {
+    throw new Error("Please enter a valid email address.");
+  }
+
+  if (!deliveryMethod) {
+    throw new Error("Please select a delivery method.");
+  }
+
+  const delivery = {
+    method: deliveryMethod
+  };
+
+  if (deliveryMethod === "pickup") {
+    const selectedCity = city.value;
+    const selectedStation = station.value;
+
+    if (!selectedCity) {
+      throw new Error("Please select your city or area.");
+    }
+
+    if (!selectedStation) {
+      throw new Error("Please select a Jumia Pickup Station.");
+    }
+
+    const selectedStationData = STATIONS.find(
+      function (item) {
+        return (
+          item["City / Area"] === selectedCity &&
+          item["Pickup Station"] === selectedStation
+        );
+      }
+    );
+
+    if (!selectedStationData) {
+      throw new Error("The selected pickup station could not be found.");
+    }
+
+    delivery.county = selectedStationData.County;
+    delivery.city_area = selectedStationData["City / Area"];
+    delivery.pickup_station =
+      selectedStationData["Pickup Station"];
+    delivery.pickup_address =
+      selectedStationData["Pickup Station Address / Landmarks"];
+
+  } else if (deliveryMethod === "door") {
+    const address =
+      document.getElementById("doorAddress").value.trim();
+
+    if (!address) {
+      throw new Error("Please enter your full delivery address.");
+    }
+
+    delivery.door_address = address;
+  }
+
+  checkoutData.customer = {
+    name,
+    phone,
+    email
+  };
+
+  checkoutData.delivery_method = deliveryMethod;
+  checkoutData.delivery = delivery;
+
+  return checkoutData;
+}
+
+function updateSummary() {
+  const session = checkoutData.session;
+
+  if (!session) return;
+
+  const subtotal = Number(session.total_price || 0);
+
+  document.getElementById("subtotal").textContent =
+    moneyFromCents(subtotal);
+
+  document.getElementById("orderSubtotal").textContent =
+    moneyFromCents(subtotal);
+}
+
 async function loadCheckoutSession() {
   const status = document.getElementById("sessionStatus");
   const itemsBox = document.getElementById("orderItems");
   const subtotalBox = document.getElementById("orderSubtotal");
   const weightBox = document.getElementById("orderWeight");
 
-  const token = new URLSearchParams(window.location.search).get("session");
+  const token = getSessionToken();
 
   if (!token) {
-    status.textContent = "No Shopify checkout session was provided.";
-    itemsBox.innerHTML = "<div class='small'>Please return to your Shopify cart and use the Seraphic Yarns Checkout button.</div>";
+    status.textContent =
+      "No Shopify checkout session was provided.";
+
+    itemsBox.innerHTML =
+      "<div class='small'>" +
+      "Please return to your Shopify cart and use the " +
+      "Seraphic Yarns Checkout button." +
+      "</div>";
+
     return;
   }
 
   try {
     const response = await fetch(
-      BACKEND_URL + "/api/checkout-session?token=" + encodeURIComponent(token),
+      BACKEND_URL +
+      "/api/checkout-session?token=" +
+      encodeURIComponent(token),
       {
         method: "GET",
-        headers: { "Accept": "application/json" }
+        headers: {
+          "Accept": "application/json"
+        }
       }
     );
 
     const result = await response.json();
 
     if (!response.ok || !result.success) {
-      throw new Error(result.error || "Unable to retrieve checkout session.");
+      throw new Error(
+        result.error ||
+        "Unable to retrieve checkout session."
+      );
     }
 
     const checkout = result.checkout;
-    const items = Array.isArray(checkout.items) ? checkout.items : [];
+
+    const items = Array.isArray(checkout.items)
+      ? checkout.items
+      : [];
 
     if (!items.length) {
       throw new Error("The Shopify cart is empty.");
     }
 
+    checkoutData.session = checkout;
+
     itemsBox.innerHTML = items.map(function (item) {
-      const variant = item.variant_title && item.variant_title !== "Default Title"
-        ? " — " + escapeHtml(item.variant_title)
-        : "";
+      const variant =
+        item.variant_title &&
+        item.variant_title !== "Default Title"
+          ? " — " + escapeHtml(item.variant_title)
+          : "";
 
       return `
         <div style="padding:10px 0;border-bottom:1px solid #eee">
-          <strong>${escapeHtml(item.title)}${variant}</strong><br>
+          <strong>
+            ${escapeHtml(item.title)}${variant}
+          </strong><br>
           Quantity: ${item.quantity}<br>
           Price: ${moneyFromCents(item.price)} each<br>
           Weight: ${item.grams} g each<br>
@@ -137,18 +300,37 @@ async function loadCheckoutSession() {
       `;
     }).join("");
 
-    subtotalBox.textContent = moneyFromCents(checkout.total_price);
+    subtotalBox.textContent =
+      moneyFromCents(checkout.total_price);
 
-    const kg = Number(checkout.total_weight_kg || 0);
-    weightBox.textContent = kg >= 1
-      ? kg.toFixed(3).replace(/0+$/, "").replace(/\.$/, "") + " kg"
-      : Number(checkout.total_weight_grams || 0) + " g";
+    const kg = Number(
+      checkout.total_weight_kg || 0
+    );
 
-    status.textContent = "Shopify order loaded successfully.";
+    weightBox.textContent =
+      kg >= 1
+        ? kg.toFixed(3)
+            .replace(/0+$/, "")
+            .replace(/\.$/, "") +
+          " kg"
+        : Number(
+            checkout.total_weight_grams || 0
+          ) + " g";
+
+    updateSummary();
+
+    status.textContent =
+      "Shopify order loaded successfully.";
 
   } catch (error) {
-    console.error("Checkout session error:", error);
-    status.textContent = "We couldn't load your Shopify order.";
+    console.error(
+      "Checkout session error:",
+      error
+    );
+
+    status.textContent =
+      "We couldn't load your Shopify order.";
+
     itemsBox.innerHTML = `
       <div class="notice">
         ${escapeHtml(error.message)}
@@ -156,6 +338,49 @@ async function loadCheckoutSession() {
     `;
   }
 }
+
+document
+  .getElementById("pay")
+  .addEventListener("click", function () {
+
+    const message =
+      document.getElementById("msg");
+
+    message.textContent = "";
+
+    try {
+
+      if (!checkoutData.session) {
+        throw new Error(
+          "Your Shopify order has not finished loading."
+        );
+      }
+
+      collectCheckoutInformation();
+
+      console.log(
+        "Seraphic Yarns checkout information:",
+        checkoutData
+      );
+
+      message.textContent =
+        "Your information has been collected successfully. " +
+        "Jumia delivery calculation will be connected next.";
+
+    } catch (error) {
+
+      message.textContent =
+        error.message;
+
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth"
+      });
+    }
+  });
+
+
+
 
 loadCheckoutSession();
 
