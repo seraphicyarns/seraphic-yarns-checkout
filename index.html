@@ -31,7 +31,20 @@ button{width:100%;padding:14px;border:0;border-radius:10px;background:#7998D0;co
 <div class="card"><h2>3. Choose your delivery</h2>
 <label class="choice"><input type="radio" name="delivery" value="pickup"> Jumia Pickup Station</label>
 <label class="choice"><input type="radio" name="delivery" value="door"> Jumia Delivery</label>
-<div id="pickupBox" style="display:none"><label>City / Area</label><select id="city"><option value="">Select City / Area</option></select>
+<div id="pickupBox" style="display:none">
+
+  <label>County</label>
+
+  <select id="pickupCounty">
+    <option value="">Select County</option>
+    <option value="Nairobi">Nairobi</option>
+  </select>
+
+  <div
+    id="pickupCountyNotice"
+    class="small"
+    style="margin-top:8px"
+  ></div><label>City / Area</label><select id="city"><option value="">Select City / Area</option></select>
 <label>Jumia Pickup Station</label><select id="station" disabled><option value="">Select Pickup Station</option></select>
 <div id="address" class="address"><strong>Pickup Station Address / Landmarks</strong><div id="addressText"></div></div></div>
 <div id="doorBox" style="display:none">
@@ -351,6 +364,54 @@ const COUNTY_ZONES = {
 }
  const cities=[...new Set(STATIONS.map(x=>x["City / Area"]))].sort((a,b)=>a.localeCompare(b));
 const city=document.getElementById('city'), station=document.getElementById('station');
+  const pickupCounty =
+  document.getElementById("pickupCounty");
+
+const pickupCountyNotice =
+  document.getElementById(
+    "pickupCountyNotice"
+  );
+  pickupCounty.addEventListener(
+  "change",
+  function () {
+
+    const county =
+      pickupCounty.value;
+
+    if (county === "Nairobi") {
+
+      pickupCountyNotice.textContent =
+        "Pickup Stations are currently available in Nairobi County.";
+
+      city.disabled = false;
+
+    } else {
+
+      pickupCountyNotice.textContent =
+        "Jumia Pickup Station is currently available only in Nairobi County.";
+
+      city.disabled = true;
+      station.disabled = true;
+
+      city.value = "";
+      station.innerHTML = "";
+
+      station.add(
+        new Option(
+          "Select Pickup Station",
+          ""
+        )
+      );
+
+      document.getElementById(
+        "address"
+      ).style.display = "none";
+    }
+
+    updateSummary();
+
+  }
+);
  const doorCounty =
   document.getElementById("doorCounty");
 
@@ -395,7 +456,23 @@ doorCounty.addEventListener(
     radio.addEventListener(
       "change",
       function () {
+ const pickup =
+          radio.checked &&
+          radio.value === "pickup";
 
+        const door =
+          radio.checked &&
+          radio.value === "door";
+
+        document.getElementById(
+          "pickupBox"
+        ).style.display =
+          pickup ? "block" : "none";
+
+        document.getElementById(
+          "doorBox"
+        ).style.display =
+          door ? "block" : "none";
         updateSummary();
 
       }
@@ -521,6 +598,22 @@ function collectCheckoutInformation() {
   };
 
   if (deliveryMethod === "pickup") {
+     const selectedCounty =
+    document.getElementById(
+      "pickupCounty"
+    ).value;
+
+  if (!selectedCounty) {
+    throw new Error(
+      "Please select your county."
+    );
+  }
+
+  if (selectedCounty !== "Nairobi") {
+    throw new Error(
+      "Jumia Pickup Station is currently available only in Nairobi County."
+    );
+     }
     const selectedCity = city.value;
     const selectedStation = station.value;
 
@@ -545,7 +638,7 @@ function collectCheckoutInformation() {
       throw new Error("The selected pickup station could not be found.");
     }
 
-    delivery.county = selectedStationData.County;
+    delivery.county = selectedCounty;
     delivery.city_area = selectedStationData["City / Area"];
     delivery.pickup_station =
       selectedStationData["Pickup Station"];
