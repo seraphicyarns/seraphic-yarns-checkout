@@ -58,8 +58,52 @@ button{width:100%;padding:14px;border:0;border-radius:10px;background:#7998D0;co
 </div>
 </div>
 <div class="card"><h2>4. Order summary</h2><div class="summary">
-<div>Order subtotal: <strong id="subtotal">KSh 0.00</strong></div><div>Jumia delivery: <strong>To be calculated</strong></div><hr>
-<div class="total">Total: To be calculated</div></div>
+
+  <div>
+    Order subtotal:
+    <strong id="subtotal">
+      KSh 0.00
+    </strong>
+  </div>
+
+  <div>
+    Order weight:
+    <strong id="summaryWeight">
+      0 kg
+    </strong>
+  </div>
+
+  <div>
+    Package:
+    <strong id="packageInfo">
+      Not available
+    </strong>
+  </div>
+
+  <div>
+    Jumia Zone:
+    <strong id="zoneInfo">
+      Select destination
+    </strong>
+  </div>
+
+  <div>
+    Jumia delivery:
+    <strong class="delivery-fee">
+      To be calculated
+    </strong>
+  </div>
+
+  <hr>
+
+  <div class="total">
+    Total:
+    <strong class="checkout-total">
+      KSh 0.00
+    </strong>
+  </div>
+
+</div>
 <div class="notice">Prototype only: payment and automatic Shopify order creation are not connected yet.</div></div>
 <div class="card"><h2>5. Payment</h2><p class="small">Next phase: connect M-PESA/card payment and create the Shopify order only after successful payment.</p>
 <button id="pay">Continue to payment</button><p id="msg" class="small"></p></div>
@@ -119,6 +163,192 @@ const COUNTY_ZONES = {
   "Tharaka Nithi": "Zone 6",
   "West Pokot": "Zone 6"
 };
+  const JUMIA_PRICES = {
+  "Zone 1": {
+    small: {
+      pickup: 210,
+      door: 250
+    },
+    medium: {
+      pickup: 300,
+      door: 350
+    },
+    large: {
+      pickup: 650,
+      door: 700
+    },
+    extra_large: {
+      pickup: 900,
+      door: 1000
+    }
+  },
+
+  "Zone 2": {
+    small: {
+      pickup: 250,
+      door: 300
+    },
+    medium: {
+      pickup: 350,
+      door: 400
+    },
+    large: {
+      pickup: 700,
+      door: 750
+    },
+    extra_large: {
+      pickup: 1000,
+      door: 1100
+    }
+  },
+
+  "Zone 3": {
+    small: {
+      pickup: 300,
+      door: 350
+    },
+    medium: {
+      pickup: 400,
+      door: 450
+    },
+    large: {
+      pickup: 1300,
+      door: 1350
+    },
+    extra_large: {
+      pickup: 1500,
+      door: 1600
+    }
+  },
+
+  "Zone 4": {
+    small: {
+      pickup: 350,
+      door: 450
+    },
+    medium: {
+      pickup: 550,
+      door: 600
+    },
+    large: {
+      pickup: 1400,
+      door: 1450
+    },
+    extra_large: {
+      pickup: 1700,
+      door: 1800
+    }
+  },
+
+  "Zone 5": {
+    small: {
+      pickup: 450,
+      door: 550
+    },
+    medium: {
+      pickup: 600,
+      door: 650
+    },
+    large: {
+      pickup: 1500,
+      door: 1550
+    },
+    extra_large: {
+      pickup: 2000,
+      door: 2100
+    }
+  },
+
+  "Zone 6": {
+    small: {
+      pickup: 500,
+      door: 600
+    },
+    medium: {
+      pickup: 650,
+      door: 700
+    },
+    large: {
+      pickup: 1600,
+      door: 1650
+    },
+    extra_large: {
+      pickup: 2300,
+      door: 2500
+    }
+  }
+};
+  function getPackageCategory(weightKg) {
+
+  if (weightKg <= 5) {
+    return "small";
+  }
+
+  if (weightKg <= 15) {
+    return "medium";
+  }
+
+  if (weightKg <= 35) {
+    return "large";
+  }
+
+  if (weightKg <= 50) {
+    return "extra_large";
+  }
+
+  return null;
+}
+  function getPackageLabel(packageCategory) {
+
+  const labels = {
+    small: "Small",
+    medium: "Medium",
+    large: "Large",
+    extra_large: "Extra Large"
+  };
+
+  return labels[packageCategory] || "";
+}
+  function calculateJumiaDeliveryFee(
+  zone,
+  packageCategory,
+  deliveryMethod
+) {
+
+  if (!zone) {
+    throw new Error(
+      "Delivery zone has not been selected."
+    );
+  }
+
+  if (!packageCategory) {
+    throw new Error(
+      "This order exceeds the maximum supported weight of 50 kg."
+    );
+  }
+
+  if (
+    deliveryMethod !== "pickup" &&
+    deliveryMethod !== "door"
+  ) {
+    throw new Error(
+      "Please select a valid delivery method."
+    );
+  }
+
+  const zonePrices =
+    JUMIA_PRICES[zone];
+
+  if (!zonePrices) {
+    throw new Error(
+      "Jumia pricing for this zone is unavailable."
+    );
+  }
+
+  return zonePrices[
+    packageCategory
+  ][deliveryMethod];
+}
  const cities=[...new Set(STATIONS.map(x=>x["City / Area"]))].sort((a,b)=>a.localeCompare(b));
 const city=document.getElementById('city'), station=document.getElementById('station');
  const doorCounty =
@@ -154,6 +384,31 @@ doorCounty.addEventListener(
 
     doorZone.textContent =
       "Destination zone: " + zone;
+  }
+);
+  document
+  .querySelectorAll(
+    'input[name="delivery"]'
+  )
+  .forEach(function (radio) {
+
+    radio.addEventListener(
+      "change",
+      function () {
+
+        updateSummary();
+
+      }
+    );
+
+  });
+
+doorCounty.addEventListener(
+  "change",
+  function () {
+
+    updateSummary();
+
   }
 );
 cities.forEach(x=>city.add(new Option(x,x)));
@@ -321,17 +576,152 @@ function collectCheckoutInformation() {
 }
 
 function updateSummary() {
-  const session = checkoutData.session;
+
+  const session =
+    checkoutData.session;
 
   if (!session) return;
 
-  const subtotal = Number(session.total_price || 0);
+  const subtotal =
+    Number(session.total_price || 0);
 
-  document.getElementById("subtotal").textContent =
+  const weightKg =
+    Number(session.total_weight_kg || 0);
+
+  document.getElementById(
+    "subtotal"
+  ).textContent =
     moneyFromCents(subtotal);
 
-  document.getElementById("orderSubtotal").textContent =
+  document.getElementById(
+    "orderSubtotal"
+  ).textContent =
     moneyFromCents(subtotal);
+
+  const deliveryMethod =
+    getSelectedDeliveryMethod();
+
+  let zone = null;
+
+  if (deliveryMethod === "door") {
+
+    const selectedCounty =
+      document.getElementById(
+        "doorCounty"
+      ).value;
+
+    if (selectedCounty) {
+      zone =
+        COUNTY_ZONES[selectedCounty];
+    }
+
+  } else if (deliveryMethod === "pickup") {
+
+    // Pickup is currently Nairobi only.
+    zone = "Zone 1";
+  }
+
+  const packageCategory =
+    getPackageCategory(weightKg);
+
+  const packageLabel =
+    getPackageLabel(packageCategory);
+
+  let deliveryFee = null;
+
+  if (
+    zone &&
+    packageCategory &&
+    deliveryMethod
+  ) {
+
+    try {
+
+      if (
+        deliveryMethod === "pickup" &&
+        zone !== "Zone 1"
+      ) {
+        throw new Error(
+          "Jumia Pickup Station is currently available only in Nairobi County."
+        );
+      }
+
+      deliveryFee =
+        calculateJumiaDeliveryFee(
+          zone,
+          packageCategory,
+          deliveryMethod
+        );
+
+    } catch (error) {
+
+      console.error(
+        "Jumia delivery calculation:",
+        error
+      );
+
+    }
+  }
+
+  const deliveryElement =
+    document.querySelector(
+      ".summary .delivery-fee"
+    );
+
+  const totalElement =
+    document.querySelector(
+      ".summary .checkout-total"
+    );
+
+  const packageElement =
+    document.getElementById(
+      "packageInfo"
+    );
+
+  const zoneElement =
+    document.getElementById(
+      "zoneInfo"
+    );
+
+  if (packageElement) {
+
+    packageElement.textContent =
+      packageCategory
+        ? `${packageLabel} (${weightKg} kg)`
+        : "Not available";
+
+  }
+
+  if (zoneElement) {
+
+    zoneElement.textContent =
+      zone
+        ? zone
+        : "Select destination";
+
+  }
+
+  if (deliveryElement) {
+
+    deliveryElement.textContent =
+      deliveryFee !== null
+        ? moneyFromCents(
+            deliveryFee * 100
+          )
+        : "To be calculated";
+
+  }
+
+  if (totalElement) {
+
+    const total =
+      deliveryFee !== null
+        ? subtotal + deliveryFee * 100
+        : subtotal;
+
+    totalElement.textContent =
+      moneyFromCents(total);
+  }
 }
 
 async function loadCheckoutSession() {
@@ -428,8 +818,20 @@ async function loadCheckoutSession() {
 
     updateSummary();
 
-    status.textContent =
-      "Shopify order loaded successfully.";
+const summaryWeight =
+  document.getElementById("summaryWeight");
+
+if (summaryWeight) {
+
+  summaryWeight.textContent =
+    Number(
+      checkout.total_weight_kg || 0
+    ) + " kg";
+
+}
+
+status.textContent =
+  "Shopify order loaded successfully.";
 
   } catch (error) {
     console.error(
