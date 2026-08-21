@@ -1,782 +1,1241 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Seraphic Yarns — Secure Checkout Prototype</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Seraphic Yarns — Secure Checkout</title>
+
 <style>
-body{font-family:Arial,sans-serif;background:#f6f7f9;margin:0;color:#222}.wrap{max-width:900px;margin:30px auto;padding:0 16px}
-.card{background:#fff;border:1px solid #ddd;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-h1{margin:0 0 6px}h2{font-size:20px;margin:0 0 14px}label{display:block;font-weight:600;margin:12px 0 6px}
-input,select,textarea{box-sizing:border-box;width:100%;padding:12px;border:1px solid #bbb;border-radius:9px;font-size:15px;background:#fff}
-textarea{min-height:100px;resize:vertical}.choice{border:1px solid #ccc;border-radius:10px;padding:13px;margin:8px 0;cursor:pointer}
-.choice input{width:auto;margin-right:8px}.address{display:none;background:#f2f5f8;padding:13px;border-radius:9px;margin-top:12px;line-height:1.5}
-.summary{background:#fafafa;border:1px solid #ddd;border-radius:10px;padding:14px;line-height:1.6}.total{font-size:20px;font-weight:700}
-button{width:100%;padding:14px;border:0;border-radius:10px;background:#7998D0;color:white;font-size:16px;font-weight:700;cursor:pointer}
-.small{font-size:13px;color:#666}.notice{padding:12px;border-radius:9px;background:#fff8df;border:1px solid #ead48a;margin-top:12px}
-</style></head>
-<body><div class="wrap">
-<div class="card"><h1>Seraphic Yarns</h1><div class="small">Secure checkout • Jumia delivery</div></div>
-<div class="card"><h2>1. Your details</h2>
-<label>Full name</label><input id="name" placeholder="Enter your full name">
-<label>Phone number</label><input id="phone" placeholder="+254 7XX XXX XXX">
-<label>Email address</label><input id="email" type="email" placeholder="you@example.com"></div>
-<div class="card"><h2>2. Your order</h2>
-<div id="sessionStatus" class="small">Loading your Shopify order…</div>
-<div id="orderItems" class="summary" style="margin-top:10px"></div>
-<div class="summary" style="margin-top:10px">
-<div>Subtotal: <strong id="orderSubtotal">KSh 0.00</strong></div>
-<div>Total weight: <strong id="orderWeight">0 g</strong></div>
-</div>
-</div>
-<div class="card"><h2>3. Choose your delivery</h2>
-<label class="choice"><input type="radio" name="delivery" value="pickup"> Jumia Pickup Station</label>
-<label class="choice"><input type="radio" name="delivery" value="door"> Jumia Delivery</label>
-<div id="pickupBox" style="display:none">
+body{
+  font-family:Arial,sans-serif;
+  background:#f6f7f9;
+  margin:0;
+  color:#222
+}
 
-  <label>County</label>
+.wrap{
+  max-width:900px;
+  margin:30px auto;
+  padding:0 16px
+}
 
-  <select id="pickupCounty">
-    <option value="">Select County</option>
-    <option value="Nairobi">Nairobi</option>
-  </select>
+.card{
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.04)
+}
 
-  <div
-    id="pickupCountyNotice"
-    class="small"
-    style="margin-top:8px"
-  ></div><label>City / Area</label><select id="city"><option value="">Select City / Area</option></select>
-<label>Jumia Pickup Station</label><select id="station" disabled><option value="">Select Pickup Station</option></select>
-<div id="address" class="address"><strong>Pickup Station Address / Landmarks</strong><div id="addressText"></div></div></div>
-<div id="doorBox" style="display:none">
+h1{
+  margin:0 0 6px
+}
 
-  <label>County</label>
+h2{
+  font-size:20px;
+  margin:0 0 14px
+}
 
-  <select id="doorCounty">
-    <option value="">Select your county</option>
-  </select>
+label{
+  display:block;
+  font-weight:600;
+  margin:12px 0 6px
+}
 
-  <div
-    id="doorZone"
-    class="small"
-    style="margin-top:8px"
-  ></div>
+input,select,textarea{
+  box-sizing:border-box;
+  width:100%;
+  padding:12px;
+  border:1px solid #bbb;
+  border-radius:9px;
+  font-size:15px;
+  background:#fff
+}
 
-  <label>Delivery address</label>
+textarea{
+  min-height:100px;
+  resize:vertical
+}
 
-  <textarea
-    id="doorAddress"
-    placeholder="Enter your full delivery address, building/house name, road/street, area, town/city and landmarks."
-  ></textarea>
+.choice{
+  border:1px solid #ccc;
+  border-radius:10px;
+  padding:13px;
+  margin:8px 0;
+  cursor:pointer
+}
 
-</div>
-</div>
-<div class="card"><h2>4. Order summary</h2><div class="summary">
+.choice input{
+  width:auto;
+  margin-right:8px
+}
 
-  <div>
-    Order subtotal:
-    <strong id="subtotal">
-      KSh 0.00
-    </strong>
+.address{
+  display:none;
+  background:#f2f5f8;
+  padding:13px;
+  border-radius:9px;
+  margin-top:12px;
+  line-height:1.5
+}
+
+.summary{
+  background:#fafafa;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:14px;
+  line-height:1.6
+}
+
+.total{
+  font-size:20px;
+  font-weight:700
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:10px;
+  background:#7998D0;
+  color:white;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer
+}
+
+.small{
+  font-size:13px;
+  color:#666
+}
+
+.notice{
+  padding:12px;
+  border-radius:9px;
+  background:#fff8df;
+  border:1px solid #ead48a;
+  margin-top:12px
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="card">
+    <h1>Seraphic Yarns</h1>
+    <div class="small">
+      Secure checkout • Jumia Pickup Station
+    </div>
   </div>
 
-  <div>
-    Order weight:
-    <strong id="summaryWeight">
-      0 kg
-    </strong>
+
+  <!-- CUSTOMER DETAILS -->
+  <div class="card">
+
+    <h2>1. Your details</h2>
+
+    <label>Full name</label>
+
+    <input
+      id="name"
+      placeholder="Enter your full name"
+    >
+
+    <label>Phone number</label>
+
+    <input
+      id="phone"
+      placeholder="+254 7XX XXX XXX"
+    >
+
+    <label>Email address</label>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="you@example.com"
+    >
+
   </div>
 
-  <div>
-    Package:
-    <strong id="packageInfo">
-      Not available
-    </strong>
+
+  <!-- ORDER -->
+  <div class="card">
+
+    <h2>2. Your order</h2>
+
+    <div
+      id="sessionStatus"
+      class="small"
+    >
+      Loading your Shopify order…
+    </div>
+
+    <div
+      id="orderItems"
+      class="summary"
+      style="margin-top:10px"
+    ></div>
+
+    <div
+      class="summary"
+      style="margin-top:10px"
+    >
+
+      <div>
+        Subtotal:
+        <strong id="orderSubtotal">
+          KSh 0.00
+        </strong>
+      </div>
+
+      <div>
+        Total weight:
+        <strong id="orderWeight">
+          0 g
+        </strong>
+      </div>
+
+    </div>
+
   </div>
 
-  <div>
-    Jumia Zone:
-    <strong id="zoneInfo">
-      Select destination
-    </strong>
+
+  <!-- DELIVERY -->
+  <div class="card">
+
+    <h2>3. Choose your delivery</h2>
+
+    <label class="choice">
+
+      <input
+        type="radio"
+        name="delivery"
+        value="pickup"
+      >
+
+      Jumia Pickup Station
+
+    </label>
+
+
+    <div
+      id="pickupBox"
+      style="display:none"
+    >
+
+      <label>County</label>
+
+      <select id="pickupCounty">
+
+        <option value="">
+          Select County
+        </option>
+
+        <option value="Nairobi">
+          Nairobi
+        </option>
+
+      </select>
+
+
+      <div
+        id="pickupCountyNotice"
+        class="small"
+        style="margin-top:8px"
+      ></div>
+
+
+      <label>City / Area</label>
+
+      <select
+        id="city"
+        disabled
+      >
+
+        <option value="">
+          Select City / Area
+        </option>
+
+      </select>
+
+
+      <label>Jumia Pickup Station</label>
+
+      <select
+        id="station"
+        disabled
+      >
+
+        <option value="">
+          Select Pickup Station
+        </option>
+
+      </select>
+
+
+      <div
+        id="address"
+        class="address"
+      >
+
+        <strong>
+          Pickup Station Address / Landmarks
+        </strong>
+
+        <div id="addressText"></div>
+
+      </div>
+
+    </div>
+
   </div>
 
-  <div>
-    Jumia delivery:
-    <strong class="delivery-fee">
-      To be calculated
-    </strong>
+
+  <!-- SUMMARY -->
+  <div class="card">
+
+    <h2>4. Order summary</h2>
+
+    <div class="summary">
+
+      <div>
+        Order subtotal:
+        <strong id="subtotal">
+          KSh 0.00
+        </strong>
+      </div>
+
+      <div>
+        Order weight:
+        <strong id="summaryWeight">
+          0 kg
+        </strong>
+      </div>
+
+      <div>
+        Package:
+        <strong id="packageInfo">
+          Not available
+        </strong>
+      </div>
+
+      <div>
+        Jumia Zone:
+        <strong id="zoneInfo">
+          Zone 1
+        </strong>
+      </div>
+
+      <div>
+        Jumia Pickup Station:
+        <strong class="delivery-fee">
+          To be calculated
+        </strong>
+      </div>
+
+      <hr>
+
+      <div class="total">
+
+        Total:
+        <strong class="checkout-total">
+          KSh 0.00
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="notice">
+
+      Jumia Pickup Station delivery is currently
+      available only within Nairobi County.
+
+    </div>
+
   </div>
 
-  <hr>
 
-  <div class="total">
-    Total:
-    <strong class="checkout-total">
-      KSh 0.00
-    </strong>
+  <!-- PAYMENT -->
+  <div class="card">
+
+    <h2>5. Payment</h2>
+
+    <p class="small">
+
+      Payment integration will be connected in
+      the next phase.
+
+    </p>
+
+    <button id="pay">
+      Continue to payment
+    </button>
+
+    <p
+      id="msg"
+      class="small"
+    ></p>
+
   </div>
 
 </div>
-<div class="notice">Prototype only: payment and automatic Shopify order creation are not connected yet.</div></div>
-<div class="card"><h2>5. Payment</h2><p class="small">Next phase: connect M-PESA/card payment and create the Shopify order only after successful payment.</p>
-<button id="pay">Continue to payment</button><p id="msg" class="small"></p></div>
-</div>
+
+
 <script>
-const STATIONS=[{"County": "Nairobi", "City / Area": "Adams Arcade / Dagoretti Corner", "Pickup Station": "Jumia Adams Arcade", "Pickup Station Address / Landmarks": "Adams Arcade Behind Tuskys supermarket off loading gate godown no 2"}, {"County": "Nairobi", "City / Area": "Adams Arcade / Dagoretti Corner", "Pickup Station": "Jumia Kloss Dagoretti Corner", "Pickup Station Address / Landmarks": "Shop No. 4, 1st Floor Shell Containers Complex"}, {"County": "Nairobi", "City / Area": "Bunyala Road / Mater Hospital /South B / Hazina Estate / Likoni Road", "Pickup Station": "Jumia Lakeland South B Station - Mariakani Road", "Pickup Station Address / Landmarks": "Links Arcade, next to jamii sacco offices,Shop no 5."}, {"County": "Nairobi", "City / Area": "Buruburu / Hamza / Harambe", "Pickup Station": "Jumia Pick Up Station-Buruburu Kloss", "Pickup Station Address / Landmarks": "Buruburu station located at Phase 2 junction opposite Rubis petrol station"}, {"County": "Nairobi", "City / Area": "CBD - GPO / City Market / Nation Centre", "Pickup Station": "Jumia Lakeland Shell Kenyatta Avenue Station", "Pickup Station Address / Landmarks": "Kenyatta Avenue inside Shell Petrol Station Opposite GPO"}, {"County": "Nairobi", "City / Area": "CBD - GPO / City Market / Nation Centre", "Pickup Station": "Jumia Kloss Kimathi Street Station", "Pickup Station Address / Landmarks": "Kimathi Street Eagle House 2nd Floor Shop No. 6 CBD - GPO/City Market/Nation CentreNairobi Kenya"}, {"County": "Nairobi", "City / Area": "CBD - Luthuli / Afya Centre / Ronald Ngala", "Pickup Station": "Jumia Pick Up Station-Bus Station", "Pickup Station Address / Landmarks": "CBD Racecourse Road, Haile Selassie Ave-CBD , Mang House, Ground Floor, Stall No.6,"}, {"County": "Nairobi", "City / Area": "CBD - Luthuli / Afya Centre / Ronald Ngala", "Pickup Station": "Jumia Pick Up Station-Development hse Nrb Kloss", "Pickup Station Address / Landmarks": "CBD Station Development House Second Floor New wing Room 228 CBD - Luthuli/Afya Centre/ R. Ngala"}, {"County": "Nairobi", "City / Area": "CBD - Luthuli / Afya Centre / Ronald Ngala", "Pickup Station": "Jumia Pick Up Station-Gaborone RD", "Pickup Station Address / Landmarks": "Nairobi, Lakeland CBD Station - Gaborone Rd, Nairobi, Comfort 5 1st floor Rm F2 Gaberone Road adjacent to Nairobi Textile Center Building opposite Galaxy Photo Studio"}, {"County": "Nairobi", "City / Area": "CBD - Luthuli / Afya Centre / Ronald Ngala", "Pickup Station": "Jumia Kloss Ronald Ngala Station", "Pickup Station Address / Landmarks": "Shop No. B6 Ground Floor Starware Building Opposite Posta"}, {"County": "Nairobi", "City / Area": "CBD - Luthuli / Afya Centre / Ronald Ngala", "Pickup Station": "Jumia Pickup Station-Latema Road", "Pickup Station Address / Landmarks": "Greencourt Business Center, Opposite Maximum Business Center, Shop No. G28, Latema Rd"}, {"County": "Nairobi", "City / Area": "CBD - UON / Globe / Koja / River Road", "Pickup Station": "Jumia CBD Kantaria Pickup", "Pickup Station Address / Landmarks": "Kantaria House Ground Floor Along Muindi Mbingu Street Opposite Jevanjee Gardens"}, {"County": "Nairobi", "City / Area": "Embakasi - Fedha / Tasia", "Pickup Station": "Jumia Pick Up Station-Fedha Gate B Cossim", "Pickup Station Address / Landmarks": "Fedha Station Aviators Business Park Ground Floor Room No A33, Next to Nyayo Estate Gate B"}, {"County": "Nairobi", "City / Area": "Embakasi - Fedha / Tasia", "Pickup Station": "Jumia Pick Up Station-Fedha QuickMart, Kloss", "Pickup Station Address / Landmarks": "Fedha station Patron business park shop no 18, opposite Quickmark supermarket Fedha road."}, {"County": "Nairobi", "City / Area": "Embakasi East - Cabanas Stage / Kyang'ombe / Southfield Mall", "Pickup Station": "Jumia Warehouse Station - Nairobi", "Pickup Station Address / Landmarks": "Tuskys Supermarket offices, Cabanas bus station"}, {"County": "Nairobi", "City / Area": "Embakasi East - Donholm / Green Fields / Kayole / Nasra", "Pickup Station": "Jumia Pick Up Station-Shujaa mall Kayole, Cossim", "Pickup Station Address / Landmarks": "Shujaa Mall Station Shujaa Mall Ground Floor Kayole along Spine Road after Bee Center next to Soisan Estate Main Gate"}, {"County": "Nairobi", "City / Area": "Embakasi East - GSU / Mihango / Utawala / Benedicta / Githunguri / Airways", "Pickup Station": "Jumia Pick Up Station Kincar Utawala", "Pickup Station Address / Landmarks": "Githunguri Road, Airways, Kincar Junction Opposite - Utawala Estate Health Centre & Leasher Mart Supermarket Building - Kincar Junction Containers Shop no. B-08"}, {"County": "Nairobi", "City / Area": "Embakasi East - GSU / Mihango / Utawala / Benedicta / Githunguri / Airways", "Pickup Station": "Jumia Pick Up Station-Kwa Chief, Utawala", "Pickup Station Address / Landmarks": "JBN Express Utawala Station Kwa Chief, Nairobi Nairobi Stalls next to Quick Mart supermarket along eastern bypass road Utawala room number 7"}, {"County": "Nairobi", "City / Area": "Embakasi East - GSU / Mihango / Utawala / Benedicta / Githunguri / Airways", "Pickup Station": "Jumia Pick up station-Utawala Benedicta, Kloss", "Pickup Station Address / Landmarks": "Utawala Pickup Station - Kimson Annex Utawala Benedicta stage, Eastern Bypass, Nairobi, Stalls Shop C6 Benedicta stage"}, {"County": "Nairobi", "City / Area": "Embakasi East - Pipeline / Transami / Airport North Rd", "Pickup Station": "Jumia Pick Up Station-Transami, Kloss", "Pickup Station Address / Landmarks": "Transami Station Next to Muhindi Mweusi Supermarket & Caribbean Food Court"}, {"County": "Nairobi", "City / Area": "Embakasi South - Mombasa Road / Sameer Park / General Motors / ICD", "Pickup Station": "Jumia Lakeland Mombasa Rd Station", "Pickup Station Address / Landmarks": "Mombasa Rd near GM, Ideal Ceramics Opposite Sameer."}, {"County": "Nairobi", "City / Area": "GSU / Mihango / Utawala", "Pickup Station": "Jumia Pick Up Station-Shooters,JBN EXPRESS", "Pickup Station Address / Landmarks": "Shooters JACFLO BUSINESS CENTER OPPOSITE KIBAO MATT"}, {"County": "Nairobi", "City / Area": "Garden Estate / Thome / Marurui", "Pickup Station": "Jumia JBN Roasters -Station - Thome", "Pickup Station Address / Landmarks": "Nairobi, Marurui Rd Garden Estate/Thome/MaruruiNairobi Kenya, Roasters, Grey stalls adjacent to Naivas mountain mall"}, {"County": "Nairobi", "City / Area": "Garden Estate / Thome / Marurui", "Pickup Station": "Jumia Pick Up Station-Thome", "Pickup Station Address / Landmarks": "Located at Ivy House, along Northern Bypass, next to Quick Mart Thome"}, {"County": "Nairobi", "City / Area": "Gigiri / Village Market / UN", "Pickup Station": "Jumia Rubis Gigiri Station", "Pickup Station Address / Landmarks": "Rubis Service Station - Gigiri, Close to SABIS International school"}, {"County": "Nairobi", "City / Area": "Githurai / Kahawa Sukari", "Pickup Station": "Jumia Pick Up Station-Githurai 45, Cossim", "Pickup Station Address / Landmarks": "Githurai Station Mwihoko Road Wajukuu Plaza 1st Floor office N0 201 next to Faulu Bank"}, {"County": "Nairobi", "City / Area": "Githurai / Kahawa Sukari", "Pickup Station": "Jumia Pick Up Station-Kahawa Sukari, kahawa sukari station", "Pickup Station Address / Landmarks": "kahawa sukari Supreme stalls next to shades of beauty salon Baringo road 1st south avenue, Close to Deliverance Church Christ Centre"}, {"County": "Nairobi", "City / Area": "Githurai / Kahawa Sukari", "Pickup Station": "Jumia Pick Up Station-Progressive, Githurai", "Pickup Station Address / Landmarks": "JBN Progessive CONTAINER OPPOSITE PEFA CHURCH STORE NUMBER 5"}, {"County": "Nairobi", "City / Area": "Hurlingham / DOD / Yaya Centre", "Pickup Station": "Jumia Pick Up Station-Rubis Hurlinghum, KE–Rubis Hurlingham Station", "Pickup Station Address / Landmarks": "inside rubis gas station,opposite DOD next to the roundabout And operation time to Mon to Mon- 24hours, Close to Kumliye Foodstuff Limited"}, {"County": "Nairobi", "City / Area": "Huruma / Kiamaiko / Mbatini / Ngei", "Pickup Station": "Jumia Pick Up Station-Huruma, Kloss", "Pickup Station Address / Landmarks": "Huruma Pickup Station -NISS PETROL STATION / KWA CHIEF/OPPOSITE REDEEMED CHURCH SHOP NO. 41. First Floor, Along the Junction of Juja Road and Mathare North"}, {"County": "Nairobi", "City / Area": "Imara Daima / AA / Maziwa / Kwa Njenga", "Pickup Station": "Jumia Pick Up Station-Imara Daima, Kloss", "Pickup Station Address / Landmarks": "Imara Daima Station Junction of Imara Daima Stage Cosmas Ndeti Rd, Close to Opposite Cathedral of Praise Ministries"}, {"County": "Nairobi", "City / Area": "Kahawa Wendani / Kenyatta University", "Pickup Station": "Jumia Pick Up Station Kahawa wendani, Lakeland", "Pickup Station Address / Landmarks": "Kahawa Wedani Station - Next to Magunas supermarket Kahawa wedani.Ground floor."}, {"County": "Nairobi", "City / Area": "Kahawa West / Githurai 44", "Pickup Station": "Jumia Pick Up Station-Githurai 44", "Pickup Station Address / Landmarks": "Kamiti Rd, Close to Naivas supermarket"}, {"County": "Nairobi", "City / Area": "Kahawa West / Githurai 44", "Pickup Station": "Jumia Pick Up Station-Kahawa West, Cossim", "Pickup Station Address / Landmarks": "Kahawa West Station Kahawa West Stage Stalls Opposite QuickMart Supermarket 1st Floor Stall No F2, Close to Cleanself Supermarket)"}, {"County": "Nairobi", "City / Area": "Kahawa West / Githurai 44", "Pickup Station": "Jumia Pick Up Station-Kamae Road", "Pickup Station Address / Landmarks": "Adjacent to Kahawa West Baptist Church, next to Family Bank"}, {"County": "Nairobi", "City / Area": "Kamukunji - Eastleigh / California / Shauri Moyo", "Pickup Station": "Jumia Denfa Eastleigh Station", "Pickup Station Address / Landmarks": "Mohammed Yusuf Haji Ave, Nairobi, Kenya ILSAN Mall along Yusuf Haji street. Shop G10B ground floor."}, {"County": "Nairobi", "City / Area": "Kamukunji - Eastleigh / California / Shauri Moyo", "Pickup Station": "Jumia Pickup Station-Kamukunji", "Pickup Station Address / Landmarks": "Gateway Mall, 4th Floor, Room No.7, Opposite Kamukunji Police Station"}, {"County": "Nairobi", "City / Area": "Kamulu", "Pickup Station": "Jumia Pick Up Station-Kamulu, Jumia JBN Express", "Pickup Station Address / Landmarks": "Kamulu Station - Chips spot building next to Co-operative Bank."}, {"County": "Nairobi", "City / Area": "Karen", "Pickup Station": "Jumia Pick Up Station-Gataka road Karen", "Pickup Station Address / Landmarks": "Shoppers Hub,Next to Destiny Best Supermarket, Ground floor Room No. 8"}, {"County": "Nairobi", "City / Area": "Karen", "Pickup Station": "Jumia Pick Up Station-Karen", "Pickup Station Address / Landmarks": "Karen 31 Retail collective, Ngong Rd, near the Big Smoke"}, {"County": "Nairobi", "City / Area": "Kasarani - Clay City / Kasarani / Mwiki", "Pickup Station": "Jumia Pick Up Station-Kasarani, Cossim", "Pickup Station Address / Landmarks": "Kasarani Station Nyali Stalls Opp Shell Petrol Station Stall No G16, Close to Next to Naivas supermarket."}, {"County": "Nairobi", "City / Area": "Kasarani - Clay City / Kasarani / Mwiki", "Pickup Station": "Jumia JBN Express Mwiki Station -located at Granite complex first floor room number S05..next to Tumaini Mart - Mwiki, Close to stall number 7.", "Pickup Station Address / Landmarks": "Jumia JBN Express Mwiki Station -located at Granite complex first floor room number S05..next to Tumaini Mart - Mwiki, Close to stall number 7."}, {"County": "Nairobi", "City / Area": "Kasarani - Clay City / Kasarani / Mwiki", "Pickup Station": "Jumia Pickup Station-Hunters, Kasarani", "Pickup Station Address / Landmarks": "Docmart Building near Afrifood, Opposite Hunters Main Stage, Kasarani"}, {"County": "Nairobi", "City / Area": "Kasarani - Clay City / Kasarani / Mwiki", "Pickup Station": "Jumia TRD Santon Station", "Pickup Station Address / Landmarks": "Sunton business centre (suntonstage) next to pettans driving school near Total mwiki station. 1sr floor Shop f9"}, {"County": "Nairobi", "City / Area": "Kasarani / Seasons", "Pickup Station": "Jumia Pick Up Station-Seasons", "Pickup Station Address / Landmarks": "Along Kasarani Mwiki Road Equity stage adjacent to Winnies Dry Cleaners and laundry, Close to Plumbers World Stores LTD"}, {"County": "Nairobi", "City / Area": "Kiahuria / Mwihoko", "Pickup Station": "Jumia Pick Up Station-Mwihoko", "Pickup Station Address / Landmarks": "JBN MWIHOKO at Galana Petrol Station, First floor, store number 2"}, {"County": "Nairobi", "City / Area": "Komarock / Kangundo Road / Saika / Obama", "Pickup Station": "Jumia Pick Up Station-Komarock", "Pickup Station Address / Landmarks": "MUGUNA ROAD 1OM from the main road, opposite BODA BODA stage, Angels cosmetics building, Close to near KFC mtaani, close to Victor's Faith church"}, {"County": "Nairobi", "City / Area": "Langata - Otiende / Southlands / St. Mary's", "Pickup Station": "Jumia Kloss Langata Station", "Pickup Station Address / Landmarks": "ALPHA BUSINESS CENTER(container shop no. 12) MABOKO ROAD OPP MOSQUE"}, {"County": "Nairobi", "City / Area": "Lower Kabete / Kangemi / Mountain View", "Pickup Station": "Jumia Pick Up Station-Kangemi", "Pickup Station Address / Landmarks": "Fortify Kangemi Station - Green Stalls, Along Waiyaki way, stall No, 31, Close to Next to Magunas Supermarket"}, {"County": "Nairobi", "City / Area": "Naivasha RD / Kawangware / Gatina / Waithaka", "Pickup Station": "Jumia Fortify Naivasha Road/Riruta Station", "Pickup Station Address / Landmarks": "Precious plaza, ground floor, room 10. Next to letshego, Between Equity and sidian bank"}, {"County": "Nairobi", "City / Area": "Nyayo Highrise / Riara University / Kenyatta mkt / Ngumo / KMTC", "Pickup Station": "Jumia Pick Up Station-Highrise, Kloss", "Pickup Station Address / Landmarks": "Highrise Station Nyayo Highrise Off Mbagathi Way Stall No 160 First Floor"}, {"County": "Nairobi", "City / Area": "Parklands / Highridge", "Pickup Station": "Jumia Lakeland Highridge Station", "Pickup Station Address / Landmarks": "along mpaka road opposite FETHA PLAZA in side Mayfair massionate court a grey gate no 9. Close to Next to Amani Plaza/Highridge Mall,"}, {"County": "Nairobi", "City / Area": "Roysambu / Zimmerman", "Pickup Station": "Jumia Pick Up Station-Roysambu, Cossim", "Pickup Station Address / Landmarks": "Roysambu Station Thika Road Jewel Complex 2rd Floor"}, {"County": "Nairobi", "City / Area": "Roysambu / Zimmerman", "Pickup Station": "Jumia Pick Up Station-TRM Thika Road", "Pickup Station Address / Landmarks": "Located directly opposite TRM Gate C, along TRM drive At the container stalls below the KPLC transformer."}, {"County": "Nairobi", "City / Area": "Roysambu / Zimmerman", "Pickup Station": "Jumia Pick Up Station-Zimmerman, TRD", "Pickup Station Address / Landmarks": "Zimmerman station zimmerman kamiti rd next to fivestar driving school 1st floor room number 1, Close to Sandma hardware"}, {"County": "Nairobi", "City / Area": "Ruai Town", "Pickup Station": "Jumia Pick Up Station-Ruai", "Pickup Station Address / Landmarks": "Kangundo Rd, Stalls next to Lake Oil Petrol station at Ruai junction opposite Ruai market"}, {"County": "Nairobi", "City / Area": "Ruaraka / Babadogo / Lucky Summer", "Pickup Station": "Jumia JBN Express Babadogo Station.", "Pickup Station Address / Landmarks": "JBN EXPRESS luckysummer junction Gathecha, junction stalls next to the new shell petrol station, Close to Naivas supermarket, opposite Roy transmotors"}, {"County": "Nairobi", "City / Area": "Ruaraka / Babadogo / Lucky Summer", "Pickup Station": "Jumia Pick Up Station-Ruaraka", "Pickup Station Address / Landmarks": "JBN Express Ruaraka Station Rock centre apartment first floor room 1 next to Ola petrol station"}, {"County": "Nairobi", "City / Area": "Starehe - Ngara / Desai Road / Equity / Park Road", "Pickup Station": "Jumia Pick Up Station-Ngara, Kloss", "Pickup Station Address / Landmarks": "Kloss Ngara Kiwa Building Shop No. G12 Ngara roundabout Ngara road Nairobi Next to Equity Bank / opposite Total petrol station. Plot no. 209/2759/5"}, {"County": "Nairobi", "City / Area": "Starehe - Pangani / Juja Road", "Pickup Station": "Jumia Pick Up Station-Pangani, JBN Express", "Pickup Station Address / Landmarks": "JBN Express Pangani Station First floor containers next to china house pangani"}, {"County": "Nairobi", "City / Area": "Umoja / Tena Estate / Innercore", "Pickup Station": "Jumia Pick Up Station-Umoja, Kloss", "Pickup Station Address / Landmarks": "umoja station umoja market nex to cooperative bank"}, {"County": "Nairobi", "City / Area": "Utalii / KCA / Survey / Mathare North", "Pickup Station": "Jumia Kloss Mathare Station", "Pickup Station Address / Landmarks": "Yellow stalls next to NYS ENGINEERING gate, Opposite Airtel shop adjacent to the milk depot.1st Floor, shop number A6."}, {"County": "Nairobi", "City / Area": "Westlands - Central", "Pickup Station": "Jumia Kloss Westlands Station", "Pickup Station Address / Landmarks": "MADONNA HOUSE:-Ground Floor, Shop No. G07B, Close to Opposite Nairobi Street Kitchen and SoinArcade"}];
-const COUNTY_ZONES = {
-  "Nairobi": "Zone 1",
 
-  "Kiambu": "Zone 2",
+/* =========================================================
+   JUMIA PICKUP STATIONS
+   ========================================================= */
 
-  "Embu": "Zone 3",
-  "Kisumu": "Zone 3",
-  "Uasin Gishu": "Zone 3",
-  "Nyeri": "Zone 3",
-  "Nakuru": "Zone 3",
-  "Murang'a": "Zone 3",
-  "Meru": "Zone 3",
-  "Machakos": "Zone 3",
-  "Kajiado": "Zone 3",
+const STATIONS = [
+  {"County":"Nairobi","City / Area":"Adams Arcade / Dagoretti Corner","Pickup Station":"Jumia Adams Arcade","Pickup Station Address / Landmarks":"Adams Arcade Behind Tuskys supermarket off loading gate godown no 2"},
+  {"County":"Nairobi","City / Area":"Adams Arcade / Dagoretti Corner","Pickup Station":"Jumia Kloss Dagoretti Corner","Pickup Station Address / Landmarks":"Shop No. 4, 1st Floor Shell Containers Complex"},
+  {"County":"Nairobi","City / Area":"Bunyala Road / Mater Hospital /South B / Hazina Estate / Likoni Road","Pickup Station":"Jumia Lakeland South B Station - Mariakani Road","Pickup Station Address / Landmarks":"Links Arcade, next to jamii sacco offices,Shop no 5."},
+  {"County":"Nairobi","City / Area":"Buruburu / Hamza / Harambe","Pickup Station":"Jumia Pick Up Station-Buruburu Kloss","Pickup Station Address / Landmarks":"Buruburu station located at Phase 2 junction opposite Rubis petrol station"},
+  {"County":"Nairobi","City / Area":"CBD - GPO / City Market / Nation Centre","Pickup Station":"Jumia Lakeland Shell Kenyatta Avenue Station","Pickup Station Address / Landmarks":"Kenyatta Avenue inside Shell Petrol Station Opposite GPO"},
+  {"County":"Nairobi","City / Area":"CBD - GPO / City Market / Nation Centre","Pickup Station":"Jumia Kloss Kimathi Street Station","Pickup Station Address / Landmarks":"Kimathi Street Eagle House 2nd Floor Shop No. 6 CBD - GPO/City Market/Nation CentreNairobi Kenya"},
+  {"County":"Nairobi","City / Area":"CBD - Luthuli / Afya Centre / Ronald Ngala","Pickup Station":"Jumia Pick Up Station-Bus Station","Pickup Station Address / Landmarks":"CBD Racecourse Road, Haile Selassie Ave-CBD , Mang House, Ground Floor, Stall No.6,"},
+  {"County":"Nairobi","City / Area":"CBD - Luthuli / Afya Centre / Ronald Ngala","Pickup Station":"Jumia Pick Up Station-Development hse Nrb Kloss","Pickup Station Address / Landmarks":"CBD Station Development House Second Floor New wing Room 228 CBD - Luthuli/Afya Centre/ R. Ngala"},
+  {"County":"Nairobi","City / Area":"CBD - Luthuli / Afya Centre / Ronald Ngala","Pickup Station":"Jumia Pick Up Station-Gaborone RD","Pickup Station Address / Landmarks":"Nairobi, Lakeland CBD Station - Gaborone Rd, Nairobi, Comfort 5 1st floor Rm F2 Gaberone Road adjacent to Nairobi Textile Center Building opposite Galaxy Photo Studio"},
+  {"County":"Nairobi","City / Area":"CBD - Luthuli / Afya Centre / Ronald Ngala","Pickup Station":"Jumia Kloss Ronald Ngala Station","Pickup Station Address / Landmarks":"Shop No. B6 Ground Floor Starware Building Opposite Posta"},
+  {"County":"Nairobi","City / Area":"CBD - Luthuli / Afya Centre / Ronald Ngala","Pickup Station":"Jumia Pickup Station-Latema Road","Pickup Station Address / Landmarks":"Greencourt Business Center, Opposite Maximum Business Center, Shop No. G28, Latema Rd"},
+  {"County":"Nairobi","City / Area":"CBD - UON / Globe / Koja / River Road","Pickup Station":"Jumia CBD Kantaria Pickup","Pickup Station Address / Landmarks":"Kantaria House Ground Floor Along Muindi Mbingu Street Opposite Jevanjee Gardens"},
+  {"County":"Nairobi","City / Area":"Embakasi - Fedha / Tasia","Pickup Station":"Jumia Pick Up Station-Fedha Gate B Cossim","Pickup Station Address / Landmarks":"Fedha Station Aviators Business Park Ground Floor Room No A33, Next to Nyayo Estate Gate B"},
+  {"County":"Nairobi","City / Area":"Embakasi - Fedha / Tasia","Pickup Station":"Jumia Pick Up Station-Fedha QuickMart, Kloss","Pickup Station Address / Landmarks":"Fedha station Patron business park shop no 18, opposite Quickmark supermarket Fedha road."},
+  {"County":"Nairobi","City / Area":"Embakasi East - Cabanas Stage / Kyang'ombe / Southfield Mall","Pickup Station":"Jumia Warehouse Station - Nairobi","Pickup Station Address / Landmarks":"Tuskys Supermarket offices, Cabanas bus station"},
+  {"County":"Nairobi","City / Area":"Embakasi East - Donholm / Green Fields / Kayole / Nasra","Pickup Station":"Jumia Pick Up Station-Shujaa mall Kayole, Cossim","Pickup Station Address / Landmarks":"Shujaa Mall Station Shujaa Mall Ground Floor Kayole along Spine Road after Bee Center next to Soisan Estate Main Gate"},
+  {"County":"Nairobi","City / Area":"Embakasi East - GSU / Mihango / Utawala / Benedicta / Githunguri / Airways","Pickup Station":"Jumia Pick Up Station Kincar Utawala","Pickup Station Address / Landmarks":"Githunguri Road, Airways, Kincar Junction Opposite - Utawala Estate Health Centre & Leasher Mart Supermarket Building - Kincar Junction Containers Shop no. B-08"},
+  {"County":"Nairobi","City / Area":"Embakasi East - GSU / Mihango / Utawala / Benedicta / Githunguri / Airways","Pickup Station":"Jumia Pick Up Station-Kwa Chief, Utawala","Pickup Station Address / Landmarks":"JBN Express Utawala Station Kwa Chief, Nairobi Nairobi Stalls next to Quick Mart supermarket along eastern bypass road Utawala room number 7"},
+  {"County":"Nairobi","City / Area":"Embakasi East - GSU / Mihango / Utawala / Benedicta / Githunguri / Airways","Pickup Station":"Jumia Pick up station-Utawala Benedicta, Kloss","Pickup Station Address / Landmarks":"Utawala Pickup Station - Kimson Annex Utawala Benedicta stage, Eastern Bypass, Nairobi, Stalls Shop C6 Benedicta stage"},
+  {"County":"Nairobi","City / Area":"Embakasi East - Pipeline / Transami / Airport North Rd","Pickup Station":"Jumia Pick Up Station-Transami, Kloss","Pickup Station Address / Landmarks":"Transami Station Next to Muhindi Mweusi Supermarket & Caribbean Food Court"},
+  {"County":"Nairobi","City / Area":"Embakasi South - Mombasa Road / Sameer Park / General Motors / ICD","Pickup Station":"Jumia Lakeland Mombasa Rd Station","Pickup Station Address / Landmarks":"Mombasa Rd near GM, Ideal Ceramics Opposite Sameer."},
+  {"County":"Nairobi","City / Area":"GSU / Mihango / Utawala","Pickup Station":"Jumia Pick Up Station-Shooters,JBN EXPRESS","Pickup Station Address / Landmarks":"Shooters JACFLO BUSINESS CENTER OPPOSITE KIBAO MATT"},
+  {"County":"Nairobi","City / Area":"Garden Estate / Thome / Marurui","Pickup Station":"Jumia JBN Roasters -Station - Thome","Pickup Station Address / Landmarks":"Nairobi, Marurui Rd Garden Estate/Thome/MaruruiNairobi Kenya, Roasters, Grey stalls adjacent to Naivas mountain mall"},
+  {"County":"Nairobi","City / Area":"Garden Estate / Thome / Marurui","Pickup Station":"Jumia Pick Up Station-Thome","Pickup Station Address / Landmarks":"Located at Ivy House, along Northern Bypass, next to Quick Mart Thome"},
+  {"County":"Nairobi","City / Area":"Gigiri / Village Market / UN","Pickup Station":"Jumia Rubis Gigiri Station","Pickup Station Address / Landmarks":"Rubis Service Station - Gigiri, Close to SABIS International school"},
+  {"County":"Nairobi","City / Area":"Githurai / Kahawa Sukari","Pickup Station":"Jumia Pick Up Station-Githurai 45, Cossim","Pickup Station Address / Landmarks":"Githurai Station Mwihoko Road Wajukuu Plaza 1st Floor office N0 201 next to Faulu Bank"},
+  {"County":"Nairobi","City / Area":"Githurai / Kahawa Sukari","Pickup Station":"Jumia Pick Up Station-Kahawa Sukari, kahawa sukari station","Pickup Station Address / Landmarks":"kahawa sukari Supreme stalls next to shades of beauty salon Baringo road 1st south avenue, Close to Deliverance Church Christ Centre"},
+  {"County":"Nairobi","City / Area":"Githurai / Kahawa Sukari","Pickup Station":"Jumia Pick Up Station-Progressive, Githurai","Pickup Station Address / Landmarks":"JBN Progessive CONTAINER OPPOSITE PEFA CHURCH STORE NUMBER 5"},
+  {"County":"Nairobi","City / Area":"Hurlingham / DOD / Yaya Centre","Pickup Station":"Jumia Pick Up Station-Rubis Hurlinghum, KE–Rubis Hurlingham Station","Pickup Station Address / Landmarks":"inside rubis gas station,opposite DOD next to the roundabout And operation time to Mon to Mon- 24hours, Close to Kumliye Foodstuff Limited"},
+  {"County":"Nairobi","City / Area":"Huruma / Kiamaiko / Mbatini / Ngei","Pickup Station":"Jumia Pick Up Station-Huruma, Kloss","Pickup Station Address / Landmarks":"Huruma Pickup Station -NISS PETROL STATION / KWA CHIEF/OPPOSITE REDEEMED CHURCH SHOP NO. 41. First Floor, Along the Junction of Juja Road and Mathare North"},
+  {"County":"Nairobi","City / Area":"Imara Daima / AA / Maziwa / Kwa Njenga","Pickup Station":"Jumia Pick Up Station-Imara Daima, Kloss","Pickup Station Address / Landmarks":"Imara Daima Station Junction of Imara Daima Stage Cosmas Ndeti Rd, Close to Opposite Cathedral of Praise Ministries"},
+  {"County":"Nairobi","City / Area":"Kahawa Wendani / Kenyatta University","Pickup Station":"Jumia Pick Up Station Kahawa wendani, Lakeland","Pickup Station Address / Landmarks":"Kahawa Wedani Station - Next to Magunas supermarket Kahawa wedani.Ground floor."},
+  {"County":"Nairobi","City / Area":"Kahawa West / Githurai 44","Pickup Station":"Jumia Pick Up Station-Githurai 44","Pickup Station Address / Landmarks":"Kamiti Rd, Close to Naivas supermarket"},
+  {"County":"Nairobi","City / Area":"Kahawa West / Githurai 44","Pickup Station":"Jumia Pick Up Station-Kahawa West, Cossim","Pickup Station Address / Landmarks":"Kahawa West Station Kahawa West Stage Stalls Opposite QuickMart Supermarket 1st Floor Stall No F2, Close to Cleanself Supermarket)"},
+  {"County":"Nairobi","City / Area":"Kahawa West / Githurai 44","Pickup Station":"Jumia Pick Up Station-Kamae Road","Pickup Station Address / Landmarks":"Adjacent to Kahawa West Baptist Church, next to Family Bank"},
+  {"County":"Nairobi","City / Area":"Kamukunji - Eastleigh / California / Shauri Moyo","Pickup Station":"Jumia Denfa Eastleigh Station","Pickup Station Address / Landmarks":"Mohammed Yusuf Haji Ave, Nairobi, Kenya ILSAN Mall along Yusuf Haji street. Shop G10B ground floor."},
+  {"County":"Nairobi","City / Area":"Kamukunji - Eastleigh / California / Shauri Moyo","Pickup Station":"Jumia Pickup Station-Kamukunji","Pickup Station Address / Landmarks":"Gateway Mall, 4th Floor, Room No.7, Opposite Kamukunji Police Station"},
+  {"County":"Nairobi","City / Area":"Kamulu","Pickup Station":"Jumia Pick Up Station-Kamulu, Jumia JBN Express","Pickup Station Address / Landmarks":"Kamulu Station - Chips spot building next to Co-operative Bank."},
+  {"County":"Nairobi","City / Area":"Karen","Pickup Station":"Jumia Pick Up Station-Gataka road Karen","Pickup Station Address / Landmarks":"Shoppers Hub,Next to Destiny Best Supermarket, Ground floor Room No. 8"},
+  {"County":"Nairobi","City / Area":"Karen","Pickup Station":"Jumia Pick Up Station-Karen","Pickup Station Address / Landmarks":"Karen 31 Retail collective, Ngong Rd, near the Big Smoke"},
+  {"County":"Nairobi","City / Area":"Kasarani - Clay City / Kasarani / Mwiki","Pickup Station":"Jumia Pick Up Station-Kasarani, Cossim","Pickup Station Address / Landmarks":"Kasarani Station Nyali Stalls Opp Shell Petrol Station Stall No G16, Close to Next to Naivas supermarket."},
+  {"County":"Nairobi","City / Area":"Kasarani - Clay City / Kasarani / Mwiki","Pickup Station":"Jumia JBN Express Mwiki Station -located at Granite complex first floor room number S05..next to Tumaini Mart - Mwiki, Close to stall number 7.","Pickup Station Address / Landmarks":"Jumia JBN Express Mwiki Station -located at Granite complex first floor room number S05..next to Tumaini Mart - Mwiki, Close to stall number 7."},
+  {"County":"Nairobi","City / Area":"Kasarani - Clay City / Kasarani / Mwiki","Pickup Station":"Jumia Pickup Station-Hunters, Kasarani","Pickup Station Address / Landmarks":"Docmart Building near Afrifood, Opposite Hunters Main Stage, Kasarani"},
+  {"County":"Nairobi","City / Area":"Kasarani - Clay City / Kasarani / Mwiki","Pickup Station":"Jumia TRD Santon Station","Pickup Station Address / Landmarks":"Sunton business centre (suntonstage) next to pettans driving school near Total mwiki station. 1sr floor Shop f9"},
+  {"County":"Nairobi","City / Area":"Kasarani / Seasons","Pickup Station":"Jumia Pick Up Station-Seasons","Pickup Station Address / Landmarks":"Along Kasarani Mwiki Road Equity stage adjacent to Winnies Dry Cleaners and laundry, Close to Plumbers World Stores LTD"},
+  {"County":"Nairobi","City / Area":"Kiahuria / Mwihoko","Pickup Station":"Jumia Pick Up Station-Mwihoko","Pickup Station Address / Landmarks":"JBN MWIHOKO at Galana Petrol Station, First floor, store number 2"},
+  {"County":"Nairobi","City / Area":"Komarock / Kangundo Road / Saika / Obama","Pickup Station":"Jumia Pick Up Station-Komarock","Pickup Station Address / Landmarks":"MUGUNA ROAD 1OM from the main road, opposite BODA BODA stage, Angels cosmetics building, Close to near KFC mtaani, close to Victor's Faith church"},
+  {"County":"Nairobi","City / Area":"Langata - Otiende / Southlands / St. Mary's","Pickup Station":"Jumia Kloss Langata Station","Pickup Station Address / Landmarks":"ALPHA BUSINESS CENTER(container shop no. 12) MABOKO ROAD OPP MOSQUE"},
+  {"County":"Nairobi","City / Area":"Lower Kabete / Kangemi / Mountain View","Pickup Station":"Jumia Pick Up Station-Kangemi","Pickup Station Address / Landmarks":"Fortify Kangemi Station - Green Stalls, Along Waiyaki way, stall No, 31, Close to Next to Magunas Supermarket"},
+  {"County":"Nairobi","City / Area":"Naivasha RD / Kawangware / Gatina / Waithaka","Pickup Station":"Jumia Fortify Naivasha Road/Riruta Station","Pickup Station Address / Landmarks":"Precious plaza, ground floor, room 10. Next to letshego, Between Equity and sidian bank"},
+  {"County":"Nairobi","City / Area":"Nyayo Highrise / Riara University / Kenyatta mkt / Ngumo / KMTC","Pickup Station":"Jumia Pick Up Station-Highrise, Kloss","Pickup Station Address / Landmarks":"Highrise Station Nyayo Highrise Off Mbagathi Way Stall No 160 First Floor"},
+  {"County":"Nairobi","City / Area":"Parklands / Highridge","Pickup Station":"Jumia Lakeland Highridge Station","Pickup Station Address / Landmarks":"along mpaka road opposite FETHA PLAZA in side Mayfair massionate court a grey gate no 9. Close to Next to Amani Plaza/Highridge Mall,"},
+  {"County":"Nairobi","City / Area":"Roysambu / Zimmerman","Pickup Station":"Jumia Pick Up Station-Roysambu, Cossim","Pickup Station Address / Landmarks":"Roysambu Station Thika Road Jewel Complex 2rd Floor"},
+  {"County":"Nairobi","City / Area":"Roysambu / Zimmerman","Pickup Station":"Jumia Pick Up Station-TRM Thika Road","Pickup Station Address / Landmarks":"Located directly opposite TRM Gate C, along TRM drive At the container stalls below the KPLC transformer."},
+  {"County":"Nairobi","City / Area":"Roysambu / Zimmerman","Pickup Station":"Jumia Pick Up Station-Zimmerman, TRD","Pickup Station Address / Landmarks":"Zimmerman station zimmerman kamiti rd next to fivestar driving school 1st floor room number 1, Close to Sandma hardware"},
+  {"County":"Nairobi","City / Area":"Ruai Town","Pickup Station":"Jumia Pick Up Station-Ruai","Pickup Station Address / Landmarks":"Kangundo Rd, Stalls next to Lake Oil Petrol station at Ruai junction opposite Ruai market"},
+  {"County":"Nairobi","City / Area":"Ruaraka / Babadogo / Lucky Summer","Pickup Station":"Jumia JBN Express Babadogo Station.","Pickup Station Address / Landmarks":"JBN EXPRESS luckysummer junction Gathecha, junction stalls next to the new shell petrol station, Close to Naivas supermarket, opposite Roy transmotors"},
+  {"County":"Nairobi","City / Area":"Ruaraka / Babadogo / Lucky Summer","Pickup Station":"Jumia Pick Up Station-Ruaraka","Pickup Station Address / Landmarks":"JBN Express Ruaraka Station Rock centre apartment first floor room 1 next to Ola petrol station"},
+  {"County":"Nairobi","City / Area":"Starehe - Ngara / Desai Road / Equity / Park Road","Pickup Station":"Jumia Pick Up Station-Ngara, Kloss","Pickup Station Address / Landmarks":"Kloss Ngara Kiwa Building Shop No. G12 Ngara roundabout Ngara road Nairobi Next to Equity Bank / opposite Total petrol station. Plot no. 209/2759/5"},
+  {"County":"Nairobi","City / Area":"Starehe - Pangani / Juja Road","Pickup Station":"Jumia Pick Up Station-Pangani, JBN Express","Pickup Station Address / Landmarks":"JBN Express Pangani Station First floor containers next to china house pangani"},
+  {"County":"Nairobi","City / Area":"Umoja / Tena Estate / Innercore","Pickup Station":"Jumia Pick Up Station-Umoja, Kloss","Pickup Station Address / Landmarks":"umoja station umoja market nex to cooperative bank"},
+  {"County":"Nairobi","City / Area":"Utalii / KCA / Survey / Mathare North","Pickup Station":"Jumia Kloss Mathare Station","Pickup Station Address / Landmarks":"Yellow stalls next to NYS ENGINEERING gate, Opposite Airtel shop adjacent to the milk depot.1st Floor, shop number A6."},
+  {"County":"Nairobi","City / Area":"Westlands - Central","Pickup Station":"Jumia Kloss Westlands Station","Pickup Station Address / Landmarks":"MADONNA HOUSE:-Ground Floor, Shop No. G07B, Close to Opposite Nairobi Street Kitchen and SoinArcade"}
+];
 
-  "Bomet": "Zone 4",
-  "Homa Bay": "Zone 4",
-  "Kakamega": "Zone 4",
-  "Kisii": "Zone 4",
-  "Migori": "Zone 4",
-  "Narok": "Zone 4",
-  "Nyamira": "Zone 4",
-  "Siaya": "Zone 4",
 
-  "Busia": "Zone 5",
-  "Elgeyo Marakwet": "Zone 5",
-  "Garissa": "Zone 5",
-  "Kericho": "Zone 5",
-  "Makueni": "Zone 5",
-  "Mombasa": "Zone 5",
-  "Trans Nzoia": "Zone 5",
-  "Kitui": "Zone 5",
-  "Vihiga": "Zone 5",
-  "Baringo": "Zone 5",
-  "Bungoma": "Zone 5",
+/* =========================================================
+   JUMIA ZONE 1 PRICES ONLY
+   ========================================================= */
 
-  "Isiolo": "Zone 6",
-  "Kilifi": "Zone 6",
-  "Kwale": "Zone 6",
-  "Laikipia": "Zone 6",
-  "Lamu": "Zone 6",
-  "Nyandarua": "Zone 6",
-  "Marsabit": "Zone 6",
-  "Nandi": "Zone 6",
-  "Samburu": "Zone 6",
-  "Taita Taveta": "Zone 6",
-  "Tana River": "Zone 6",
-  "Kirinyaga": "Zone 6",
-  "Turkana": "Zone 6",
-  "Wajir": "Zone 6",
-  "Tharaka Nithi": "Zone 6",
-  "West Pokot": "Zone 6"
-};
-  const JUMIA_PRICES = {
+const JUMIA_PRICES = {
+
   "Zone 1": {
-    small: {
-      pickup: 210,
-      door: 250
-    },
-    medium: {
-      pickup: 300,
-      door: 350
-    },
-    large: {
-      pickup: 650,
-      door: 700
-    },
-    extra_large: {
-      pickup: 900,
-      door: 1000
-    }
-  },
 
-  "Zone 2": {
-    small: {
-      pickup: 250,
-      door: 300
-    },
-    medium: {
-      pickup: 350,
-      door: 400
-    },
-    large: {
-      pickup: 700,
-      door: 750
-    },
-    extra_large: {
-      pickup: 1000,
-      door: 1100
-    }
-  },
+    small: 210,
 
-  "Zone 3": {
-    small: {
-      pickup: 300,
-      door: 350
-    },
-    medium: {
-      pickup: 400,
-      door: 450
-    },
-    large: {
-      pickup: 1300,
-      door: 1350
-    },
-    extra_large: {
-      pickup: 1500,
-      door: 1600
-    }
-  },
+    medium: 300,
 
-  "Zone 4": {
-    small: {
-      pickup: 350,
-      door: 450
-    },
-    medium: {
-      pickup: 550,
-      door: 600
-    },
-    large: {
-      pickup: 1400,
-      door: 1450
-    },
-    extra_large: {
-      pickup: 1700,
-      door: 1800
-    }
-  },
+    large: 650
 
-  "Zone 5": {
-    small: {
-      pickup: 450,
-      door: 550
-    },
-    medium: {
-      pickup: 600,
-      door: 650
-    },
-    large: {
-      pickup: 1500,
-      door: 1550
-    },
-    extra_large: {
-      pickup: 2000,
-      door: 2100
-    }
-  },
-
-  "Zone 6": {
-    small: {
-      pickup: 500,
-      door: 600
-    },
-    medium: {
-      pickup: 650,
-      door: 700
-    },
-    large: {
-      pickup: 1600,
-      door: 1650
-    },
-    extra_large: {
-      pickup: 2300,
-      door: 2500
-    }
   }
-};
-  function getPackageCategory(weightKg) {
 
-  if (weightKg <= 5) {
+};
+
+
+/* =========================================================
+   PACKAGE CATEGORY
+   ========================================================= */
+
+function getPackageCategory(weightKg){
+
+  if(weightKg <= 5){
     return "small";
   }
 
-  if (weightKg <= 15) {
+  if(weightKg <= 15){
     return "medium";
   }
 
-  if (weightKg <= 35) {
+  if(weightKg <= 35){
     return "large";
-  }
-
-  if (weightKg <= 50) {
-    return "extra_large";
   }
 
   return null;
 }
-  function getPackageLabel(packageCategory) {
+
+
+/* =========================================================
+   PACKAGE LABEL
+   ========================================================= */
+
+function getPackageLabel(packageCategory){
 
   const labels = {
-    small: "Small",
-    medium: "Medium",
-    large: "Large",
-    extra_large: "Extra Large"
+
+    small:"Small",
+
+    medium:"Medium",
+
+    large:"Large"
+
   };
 
   return labels[packageCategory] || "";
 }
-  function calculateJumiaDeliveryFee(
-  zone,
-  packageCategory,
-  deliveryMethod
-) {
 
-  if (!zone) {
+
+/* =========================================================
+   JUMIA PICKUP FEE
+   ========================================================= */
+
+function calculateJumiaPickupFee(packageCategory){
+
+  if(!packageCategory){
+
     throw new Error(
-      "Delivery zone has not been selected."
+      "This order exceeds the maximum supported Jumia weight of 35 kg."
     );
+
   }
 
-  if (!packageCategory) {
+  const price =
+    JUMIA_PRICES["Zone 1"][packageCategory];
+
+  if(price === undefined){
+
     throw new Error(
-      "This order exceeds the maximum supported weight of 50 kg."
+      "Jumia pickup pricing is unavailable."
     );
+
   }
 
-  if (
-    deliveryMethod !== "pickup" &&
-    deliveryMethod !== "door"
-  ) {
-    throw new Error(
-      "Please select a valid delivery method."
-    );
-  }
-
-  const zonePrices =
-    JUMIA_PRICES[zone];
-
-  if (!zonePrices) {
-    throw new Error(
-      "Jumia pricing for this zone is unavailable."
-    );
-  }
-
-  return zonePrices[
-    packageCategory
-  ][deliveryMethod];
+  return price;
 }
- const cities=[...new Set(STATIONS.map(x=>x["City / Area"]))].sort((a,b)=>a.localeCompare(b));
-const city=document.getElementById('city'), station=document.getElementById('station');
-  const pickupCounty =
-  document.getElementById("pickupCounty");
+
+
+/* =========================================================
+   CITY / STATION SETUP
+   ========================================================= */
+
+const cities = [
+  ...new Set(
+    STATIONS.map(
+      x => x["City / Area"]
+    )
+  )
+].sort(
+  (a,b) => a.localeCompare(b)
+);
+
+
+const city =
+  document.getElementById("city");
+
+const station =
+  document.getElementById("station");
+
+const pickupCounty =
+  document.getElementById(
+    "pickupCounty"
+  );
 
 const pickupCountyNotice =
   document.getElementById(
     "pickupCountyNotice"
   );
-  pickupCounty.addEventListener(
+
+
+/* =========================================================
+   COUNTY
+   ========================================================= */
+
+pickupCounty.addEventListener(
   "change",
-  function () {
+  function(){
 
     const county =
       pickupCounty.value;
 
-    if (county === "Nairobi") {
+    if(county === "Nairobi"){
 
       pickupCountyNotice.textContent =
         "Pickup Stations are currently available in Nairobi County.";
 
       city.disabled = false;
 
-    } else {
+      city.innerHTML =
+        '<option value="">Select City / Area</option>';
+
+      station.innerHTML =
+        '<option value="">Select Pickup Station</option>';
+
+      station.disabled = true;
+
+      cities.forEach(
+        function(area){
+
+          city.add(
+            new Option(
+              area,
+              area
+            )
+          );
+
+        }
+      );
+
+    }else{
 
       pickupCountyNotice.textContent =
         "Jumia Pickup Station is currently available only in Nairobi County.";
 
       city.disabled = true;
+
       station.disabled = true;
 
       city.value = "";
-      station.innerHTML = "";
 
-      station.add(
-        new Option(
-          "Select Pickup Station",
-          ""
-        )
-      );
+      station.innerHTML =
+        '<option value="">Select Pickup Station</option>';
 
       document.getElementById(
         "address"
       ).style.display = "none";
+
     }
 
     updateSummary();
 
   }
 );
- const doorCounty =
-  document.getElementById("doorCounty");
 
-const doorZone =
-  document.getElementById("doorZone");
 
-Object.keys(COUNTY_ZONES)
-  .sort((a, b) => a.localeCompare(b))
-  .forEach(function (county) {
+/* =========================================================
+   DELIVERY RADIO
+   ========================================================= */
 
-    doorCounty.add(
-      new Option(county, county)
-    );
-
-  });
-
-doorCounty.addEventListener(
-  "change",
-  function () {
-
-    const county =
-      doorCounty.value;
-
-    if (!county) {
-      doorZone.textContent = "";
-      return;
-    }
-
-    const zone =
-      COUNTY_ZONES[county];
-
-    doorZone.textContent =
-      "Destination zone: " + zone;
-  }
-);
-  document
+document
   .querySelectorAll(
     'input[name="delivery"]'
   )
-  .forEach(function (radio) {
+  .forEach(
+    function(radio){
 
-    radio.addEventListener(
-      "change",
-      function () {
- const pickup =
-          radio.checked &&
-          radio.value === "pickup";
+      radio.addEventListener(
+        "change",
+        function(){
 
-        const door =
-          radio.checked &&
-          radio.value === "door";
+          const pickup =
+            radio.checked &&
+            radio.value === "pickup";
 
-        document.getElementById(
-          "pickupBox"
-        ).style.display =
-          pickup ? "block" : "none";
+          document.getElementById(
+            "pickupBox"
+          ).style.display =
+            pickup
+              ? "block"
+              : "none";
 
-        document.getElementById(
-          "doorBox"
-        ).style.display =
-          door ? "block" : "none";
-        updateSummary();
+          updateSummary();
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   CITY
+   ========================================================= */
+
+city.addEventListener(
+  "change",
+  function(){
+
+    station.innerHTML =
+      '<option value="">Select Pickup Station</option>';
+
+    const matches =
+      STATIONS.filter(
+        x =>
+          x["City / Area"] ===
+          city.value
+      );
+
+    matches.forEach(
+      function(x){
+
+        station.add(
+          new Option(
+            x["Pickup Station"],
+            x["Pickup Station"]
+          )
+        );
 
       }
     );
 
-  });
+    station.disabled =
+      matches.length === 0;
 
-doorCounty.addEventListener(
-  "change",
-  function () {
-
-    updateSummary();
+    document.getElementById(
+      "address"
+    ).style.display =
+      "none";
 
   }
 );
-cities.forEach(x=>city.add(new Option(x,x)));
-document.querySelectorAll('input[name="delivery"]').forEach(r=>r.addEventListener('change',()=>{
- const pickup=r.checked&&r.value==='pickup',door=r.checked&&r.value==='door';
- document.getElementById('pickupBox').style.display=pickup?'block':'none';
- document.getElementById('doorBox').style.display=door?'block':'none';
-}));
-city.addEventListener('change',()=>{
- station.innerHTML='';station.add(new Option('Select Pickup Station',''));
- const matches=STATIONS.filter(x=>x["City / Area"]===city.value);
- matches.forEach(x=>station.add(new Option(x["Pickup Station"],x["Pickup Station"])));
- station.disabled=matches.length===0;document.getElementById('address').style.display='none';
-});
-station.addEventListener('change',()=>{
- const s=STATIONS.find(x=>x["City / Area"]===city.value&&x["Pickup Station"]===station.value);
- if(s){document.getElementById('addressText').textContent=s["Pickup Station Address / Landmarks"];document.getElementById('address').style.display='block';}
-});
+
+
+/* =========================================================
+   STATION
+   ========================================================= */
+
+station.addEventListener(
+  "change",
+  function(){
+
+    const selected =
+      STATIONS.find(
+        x =>
+          x["City / Area"] ===
+            city.value &&
+          x["Pickup Station"] ===
+            station.value
+      );
+
+    if(selected){
+
+      document.getElementById(
+        "addressText"
+      ).textContent =
+        selected[
+          "Pickup Station Address / Landmarks"
+        ];
+
+      document.getElementById(
+        "address"
+      ).style.display =
+        "block";
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   BACKEND
+   ========================================================= */
 
 const BACKEND_URL =
   "https://seraphic-yarns-backend.vercel.app";
 
+
+/* =========================================================
+   CHECKOUT DATA
+   ========================================================= */
+
 let checkoutData = {
-  session: null,
-  delivery_method: null,
-  customer: {
-    name: "",
-    phone: "",
-    email: ""
+
+  session:null,
+
+  delivery_method:null,
+
+  customer:{
+
+    name:"",
+
+    phone:"",
+
+    email:""
+
   },
-  delivery: {}
+
+  delivery:{}
+
 };
 
-function moneyFromCents(cents) {
-  return "KSh " + (Number(cents || 0) / 100).toLocaleString("en-KE", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, function (c) {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    }[c];
-  });
-}
+/* =========================================================
+   MONEY
+   ========================================================= */
 
-function getSessionToken() {
-  return new URLSearchParams(window.location.search).get("session");
-}
+function moneyFromCents(cents){
 
-function getSelectedDeliveryMethod() {
-  const selected = document.querySelector(
-    'input[name="delivery"]:checked'
-  );
-
-  return selected ? selected.value : null;
-}
-
-function validatePhone(phone) {
-  const cleaned = phone.replace(/\s+/g, "");
-
-  return /^(\+254|254|0)7\d{8}$/.test(cleaned);
-}
-
-function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function collectCheckoutInformation() {
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const email = document.getElementById("email").value.trim();
-
-  const deliveryMethod = getSelectedDeliveryMethod();
-
-  if (!name) {
-    throw new Error("Please enter your full name.");
-  }
-
-  if (!phone) {
-    throw new Error("Please enter your phone number.");
-  }
-
-  if (!validatePhone(phone)) {
-    throw new Error(
-      "Please enter a valid Kenyan phone number, for example 0712345678."
-    );
-  }
-
-  if (!email) {
-    throw new Error("Please enter your email address.");
-  }
-
-  if (!validateEmail(email)) {
-    throw new Error("Please enter a valid email address.");
-  }
-
-  if (!deliveryMethod) {
-    throw new Error("Please select a delivery method.");
-  }
-
-  const delivery = {
-    method: deliveryMethod
-  };
-
-  if (deliveryMethod === "pickup") {
-     const selectedCounty =
-    document.getElementById(
-      "pickupCounty"
-    ).value;
-
-  if (!selectedCounty) {
-    throw new Error(
-      "Please select your county."
-    );
-  }
-
-  if (selectedCounty !== "Nairobi") {
-    throw new Error(
-      "Jumia Pickup Station is currently available only in Nairobi County."
-    );
-     }
-    const selectedCity = city.value;
-    const selectedStation = station.value;
-
-    if (!selectedCity) {
-      throw new Error("Please select your city or area.");
-    }
-
-    if (!selectedStation) {
-      throw new Error("Please select a Jumia Pickup Station.");
-    }
-
-    const selectedStationData = STATIONS.find(
-      function (item) {
-        return (
-          item["City / Area"] === selectedCity &&
-          item["Pickup Station"] === selectedStation
-        );
+  return "KSh " +
+    (
+      Number(cents || 0) /
+      100
+    ).toLocaleString(
+      "en-KE",
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
       }
     );
 
-    if (!selectedStationData) {
-      throw new Error("The selected pickup station could not be found.");
-    }
-
-    delivery.county = selectedCounty;
-    delivery.city_area = selectedStationData["City / Area"];
-    delivery.pickup_station =
-      selectedStationData["Pickup Station"];
-    delivery.pickup_address =
-      selectedStationData["Pickup Station Address / Landmarks"];
-
-  } else if (deliveryMethod === "door") {
-    const address =
-      document.getElementById("doorAddress").value.trim();
-
-    if (!address) {
-      throw new Error("Please enter your full delivery address.");
-    }
-
-    delivery.door_address = address;
-  }
-
-  checkoutData.customer = {
-    name,
-    phone,
-    email
-  };
-
-  checkoutData.delivery_method = deliveryMethod;
-  checkoutData.delivery = delivery;
-
-  return checkoutData;
 }
 
-function updateSummary() {
 
-  const session =
-    checkoutData.session;
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
 
-  if (!session) return;
+function escapeHtml(value){
 
-  const subtotal =
-    Number(session.total_price || 0);
+  return String(value)
+    .replace(
+      /[&<>"']/g,
+      function(c){
 
-  const weightKg =
-    Number(session.total_weight_kg || 0);
+        return {
 
-  document.getElementById(
-    "subtotal"
-  ).textContent =
-    moneyFromCents(subtotal);
+          "&":"&amp;",
 
-  document.getElementById(
-    "orderSubtotal"
-  ).textContent =
-    moneyFromCents(subtotal);
+          "<":"&lt;",
+
+          ">":"&gt;",
+
+          '"':"&quot;",
+
+          "'":"&#039;"
+
+        }[c];
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   SESSION TOKEN
+   ========================================================= */
+
+function getSessionToken(){
+
+  return new URLSearchParams(
+    window.location.search
+  ).get("session");
+
+}
+
+
+/* =========================================================
+   SELECTED DELIVERY
+   ========================================================= */
+
+function getSelectedDeliveryMethod(){
+
+  const selected =
+    document.querySelector(
+      'input[name="delivery"]:checked'
+    );
+
+  return selected
+    ? selected.value
+    : null;
+
+}
+
+
+/* =========================================================
+   PHONE VALIDATION
+   ========================================================= */
+
+function validatePhone(phone){
+
+  const cleaned =
+    phone.replace(
+      /\s+/g,
+      ""
+    );
+
+  return /^(\\+254|254|0)7\d{8}$/
+    .test(cleaned);
+
+}
+
+
+/* =========================================================
+   EMAIL VALIDATION
+   ========================================================= */
+
+function validateEmail(email){
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    .test(email);
+
+}
+
+
+/* =========================================================
+   COLLECT CHECKOUT INFORMATION
+   ========================================================= */
+
+function collectCheckoutInformation(){
+
+  const name =
+    document.getElementById(
+      "name"
+    ).value.trim();
+
+  const phone =
+    document.getElementById(
+      "phone"
+    ).value.trim();
+
+  const email =
+    document.getElementById(
+      "email"
+    ).value.trim();
 
   const deliveryMethod =
     getSelectedDeliveryMethod();
 
-  let zone = null;
 
-  if (deliveryMethod === "door") {
+  if(!name){
 
-    const selectedCounty =
-      document.getElementById(
-        "doorCounty"
-      ).value;
+    throw new Error(
+      "Please enter your full name."
+    );
 
-    if (selectedCounty) {
-      zone =
-        COUNTY_ZONES[selectedCounty];
-    }
-
-  } else if (deliveryMethod === "pickup") {
-
-    // Pickup is currently Nairobi only.
-    zone = "Zone 1";
   }
 
+
+  if(!phone){
+
+    throw new Error(
+      "Please enter your phone number."
+    );
+
+  }
+
+
+  if(!validatePhone(phone)){
+
+    throw new Error(
+      "Please enter a valid Kenyan phone number, for example 0712345678."
+    );
+
+  }
+
+
+  if(!email){
+
+    throw new Error(
+      "Please enter your email address."
+    );
+
+  }
+
+
+  if(!validateEmail(email)){
+
+    throw new Error(
+      "Please enter a valid email address."
+    );
+
+  }
+
+
+  if(!deliveryMethod){
+
+    throw new Error(
+      "Please select a delivery method."
+    );
+
+  }
+
+
+  if(deliveryMethod !== "pickup"){
+
+    throw new Error(
+      "Please select Jumia Pickup Station."
+    );
+
+  }
+
+
+  const selectedCounty =
+    document.getElementById(
+      "pickupCounty"
+    ).value;
+
+
+  if(!selectedCounty){
+
+    throw new Error(
+      "Please select your county."
+    );
+
+  }
+
+
+  if(selectedCounty !== "Nairobi"){
+
+    throw new Error(
+      "Jumia Pickup Station is currently available only in Nairobi County."
+    );
+
+  }
+
+
+  const selectedCity =
+    city.value;
+
+
+  const selectedStation =
+    station.value;
+
+
+  if(!selectedCity){
+
+    throw new Error(
+      "Please select your city or area."
+    );
+
+  }
+
+
+  if(!selectedStation){
+
+    throw new Error(
+      "Please select a Jumia Pickup Station."
+    );
+
+  }
+
+
+  const selectedStationData =
+    STATIONS.find(
+      function(item){
+
+        return (
+
+          item["City / Area"] ===
+            selectedCity &&
+
+          item["Pickup Station"] ===
+            selectedStation
+
+        );
+
+      }
+    );
+
+
+  if(!selectedStationData){
+
+    throw new Error(
+      "The selected pickup station could not be found."
+    );
+
+  }
+
+
+  checkoutData.customer = {
+
+    name,
+
+    phone,
+
+    email
+
+  };
+
+
+  checkoutData.delivery_method =
+    "pickup";
+
+
+  checkoutData.delivery = {
+
+    method:"pickup",
+
+    courier:"Jumia",
+
+    county:selectedCounty,
+
+    city_area:
+      selectedStationData[
+        "City / Area"
+      ],
+
+    pickup_station:
+      selectedStationData[
+        "Pickup Station"
+      ],
+
+    pickup_address:
+      selectedStationData[
+        "Pickup Station Address / Landmarks"
+      ]
+
+  };
+
+
+  return checkoutData;
+
+}
+
+
+/* =========================================================
+   UPDATE SUMMARY
+   ========================================================= */
+
+function updateSummary(){
+
+  const session =
+    checkoutData.session;
+
+
+  if(!session){
+
+    return;
+
+  }
+
+
+  const subtotal =
+    Number(
+      session.total_price || 0
+    );
+
+
+  const weightKg =
+    Number(
+      session.total_weight_kg || 0
+    );
+
+
+  document.getElementById(
+    "subtotal"
+  ).textContent =
+    moneyFromCents(
+      subtotal
+    );
+
+
+  document.getElementById(
+    "orderSubtotal"
+  ).textContent =
+    moneyFromCents(
+      subtotal
+    );
+
+
+  const deliveryMethod =
+    getSelectedDeliveryMethod();
+
+
+  let deliveryFee =
+    null;
+
+
   const packageCategory =
-    getPackageCategory(weightKg);
+    getPackageCategory(
+      weightKg
+    );
+
 
   const packageLabel =
-    getPackageLabel(packageCategory);
+    getPackageLabel(
+      packageCategory
+    );
 
-  let deliveryFee = null;
 
-  if (
-    zone &&
-    packageCategory &&
-    deliveryMethod
-  ) {
+  if(
+    deliveryMethod ===
+    "pickup"
+  ){
 
-    try {
-
-      if (
-        deliveryMethod === "pickup" &&
-        zone !== "Zone 1"
-      ) {
-        throw new Error(
-          "Jumia Pickup Station is currently available only in Nairobi County."
-        );
-      }
+    try{
 
       deliveryFee =
-        calculateJumiaDeliveryFee(
-          zone,
-          packageCategory,
-          deliveryMethod
+        calculateJumiaPickupFee(
+          packageCategory
         );
 
-    } catch (error) {
+    }catch(error){
 
       console.error(
-        "Jumia delivery calculation:",
+        "Jumia pickup calculation:",
         error
       );
 
     }
+
   }
+
 
   const deliveryElement =
     document.querySelector(
       ".summary .delivery-fee"
     );
 
+
   const totalElement =
     document.querySelector(
       ".summary .checkout-total"
     );
+
 
   const packageElement =
     document.getElementById(
       "packageInfo"
     );
 
+
   const zoneElement =
     document.getElementById(
       "zoneInfo"
     );
 
-  if (packageElement) {
+
+  if(packageElement){
 
     packageElement.textContent =
       packageCategory
@@ -785,16 +1244,16 @@ function updateSummary() {
 
   }
 
-  if (zoneElement) {
+
+  if(zoneElement){
 
     zoneElement.textContent =
-      zone
-        ? zone
-        : "Select destination";
+      "Zone 1";
 
   }
 
-  if (deliveryElement) {
+
+  if(deliveryElement){
 
     deliveryElement.textContent =
       deliveryFee !== null
@@ -805,189 +1264,374 @@ function updateSummary() {
 
   }
 
-  if (totalElement) {
+
+  if(totalElement){
 
     const total =
       deliveryFee !== null
-        ? subtotal + deliveryFee * 100
+        ? subtotal +
+          deliveryFee * 100
         : subtotal;
 
+
     totalElement.textContent =
-      moneyFromCents(total);
+      moneyFromCents(
+        total
+      );
+
   }
+
 }
 
-async function loadCheckoutSession() {
-  const status = document.getElementById("sessionStatus");
-  const itemsBox = document.getElementById("orderItems");
-  const subtotalBox = document.getElementById("orderSubtotal");
-  const weightBox = document.getElementById("orderWeight");
 
-  const token = getSessionToken();
+/* =========================================================
+   LOAD SHOPIFY CHECKOUT SESSION
+   ========================================================= */
 
-  if (!token) {
+async function loadCheckoutSession(){
+
+  const status =
+    document.getElementById(
+      "sessionStatus"
+    );
+
+
+  const itemsBox =
+    document.getElementById(
+      "orderItems"
+    );
+
+
+  const subtotalBox =
+    document.getElementById(
+      "orderSubtotal"
+    );
+
+
+  const weightBox =
+    document.getElementById(
+      "orderWeight"
+    );
+
+
+  const token =
+    getSessionToken();
+
+
+  if(!token){
+
     status.textContent =
       "No Shopify checkout session was provided.";
 
+
     itemsBox.innerHTML =
       "<div class='small'>" +
+
       "Please return to your Shopify cart and use the " +
+
       "Seraphic Yarns Checkout button." +
+
       "</div>";
 
+
     return;
+
   }
 
-  try {
-    const response = await fetch(
-      BACKEND_URL +
-      "/api/checkout-session?token=" +
-      encodeURIComponent(token),
-      {
-        method: "GET",
-        headers: {
-          "Accept": "application/json"
+
+  try{
+
+    const response =
+      await fetch(
+
+        BACKEND_URL +
+        "/api/checkout-session?token=" +
+        encodeURIComponent(
+          token
+        ),
+
+        {
+
+          method:"GET",
+
+          headers:{
+
+            "Accept":
+              "application/json"
+
+          }
+
         }
-      }
-    );
 
-    const result = await response.json();
+      );
 
-    if (!response.ok || !result.success) {
+
+    const result =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !result.success
+    ){
+
       throw new Error(
+
         result.error ||
         "Unable to retrieve checkout session."
+
       );
+
     }
 
-    const checkout = result.checkout;
 
-    const items = Array.isArray(checkout.items)
-      ? checkout.items
-      : [];
+    const checkout =
+      result.checkout;
 
-    if (!items.length) {
-      throw new Error("The Shopify cart is empty.");
+
+    const items =
+      Array.isArray(
+        checkout.items
+      )
+        ? checkout.items
+        : [];
+
+
+    if(!items.length){
+
+      throw new Error(
+        "The Shopify cart is empty."
+      );
+
     }
 
-    checkoutData.session = checkout;
 
-    itemsBox.innerHTML = items.map(function (item) {
-      const variant =
-        item.variant_title &&
-        item.variant_title !== "Default Title"
-          ? " — " + escapeHtml(item.variant_title)
-          : "";
+    checkoutData.session =
+      checkout;
 
-      return `
-        <div style="padding:10px 0;border-bottom:1px solid #eee">
-          <strong>
-            ${escapeHtml(item.title)}${variant}
-          </strong><br>
-          Quantity: ${item.quantity}<br>
-          Price: ${moneyFromCents(item.price)} each<br>
-          Weight: ${item.grams} g each<br>
-          Line weight: ${item.total_weight_grams} g
-        </div>
-      `;
-    }).join("");
+
+    itemsBox.innerHTML =
+      items.map(
+        function(item){
+
+          const variant =
+            item.variant_title &&
+            item.variant_title !==
+              "Default Title"
+
+              ? " — " +
+                escapeHtml(
+                  item.variant_title
+                )
+
+              : "";
+
+
+          return `
+
+            <div
+              style="padding:10px 0;border-bottom:1px solid #eee"
+            >
+
+              <strong>
+
+                ${escapeHtml(item.title)}
+                ${variant}
+
+              </strong>
+
+              <br>
+
+              Quantity:
+              ${item.quantity}
+
+              <br>
+
+              Price:
+              ${moneyFromCents(item.price)}
+              each
+
+              <br>
+
+              Weight:
+              ${item.grams} g each
+
+              <br>
+
+              Line weight:
+              ${item.total_weight_grams} g
+
+            </div>
+
+          `;
+
+        }
+      ).join("");
+
 
     subtotalBox.textContent =
-      moneyFromCents(checkout.total_price);
+      moneyFromCents(
+        checkout.total_price
+      );
 
-    const kg = Number(
-      checkout.total_weight_kg || 0
-    );
+
+    const kg =
+      Number(
+        checkout.total_weight_kg || 0
+      );
+
 
     weightBox.textContent =
       kg >= 1
-        ? kg.toFixed(3)
-            .replace(/0+$/, "")
-            .replace(/\.$/, "") +
+
+        ? kg
+            .toFixed(3)
+            .replace(
+              /0+$/,
+              ""
+            )
+            .replace(
+              /\.$/,
+              ""
+            ) +
           " kg"
+
         : Number(
             checkout.total_weight_grams || 0
-          ) + " g";
+          ) +
+          " g";
+
+
+    const summaryWeight =
+      document.getElementById(
+        "summaryWeight"
+      );
+
+
+    if(summaryWeight){
+
+      summaryWeight.textContent =
+        kg + " kg";
+
+    }
+
 
     updateSummary();
 
-const summaryWeight =
-  document.getElementById("summaryWeight");
 
-if (summaryWeight) {
+    status.textContent =
+      "Shopify order loaded successfully.";
 
-  summaryWeight.textContent =
-    Number(
-      checkout.total_weight_kg || 0
-    ) + " kg";
+  }catch(error){
 
-}
-
-status.textContent =
-  "Shopify order loaded successfully.";
-
-  } catch (error) {
     console.error(
       "Checkout session error:",
       error
     );
 
+
     status.textContent =
       "We couldn't load your Shopify order.";
 
+
     itemsBox.innerHTML = `
+
       <div class="notice">
-        ${escapeHtml(error.message)}
+
+        ${escapeHtml(
+          error.message
+        )}
+
       </div>
+
     `;
+
   }
+
 }
+
+
+/* =========================================================
+   PAYMENT BUTTON
+   ========================================================= */
 
 document
   .getElementById("pay")
-  .addEventListener("click", function () {
+  .addEventListener(
+    "click",
+    function(){
 
-    const message =
-      document.getElementById("msg");
-
-    message.textContent = "";
-
-    try {
-
-      if (!checkoutData.session) {
-        throw new Error(
-          "Your Shopify order has not finished loading."
+      const message =
+        document.getElementById(
+          "msg"
         );
+
+
+      message.textContent =
+        "";
+
+
+      try{
+
+        if(
+          !checkoutData.session
+        ){
+
+          throw new Error(
+            "Your Shopify order has not finished loading."
+          );
+
+        }
+
+
+        collectCheckoutInformation();
+
+
+        console.log(
+          "Seraphic Yarns checkout information:",
+          checkoutData
+        );
+
+
+        message.textContent =
+          "Your information has been collected successfully. Payment integration will be connected next.";
+
+      }catch(error){
+
+        message.textContent =
+          error.message;
+
+
+        window.scrollTo({
+
+          top:
+            document.body.scrollHeight,
+
+          behavior:
+            "smooth"
+
+        });
+
       }
 
-      collectCheckoutInformation();
-
-      console.log(
-        "Seraphic Yarns checkout information:",
-        checkoutData
-      );
-
-      message.textContent =
-        "Your information has been collected successfully. " +
-        "Jumia delivery calculation will be connected next.";
-
-    } catch (error) {
-
-      message.textContent =
-        error.message;
-
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: "smooth"
-      });
     }
-  });
+  );
 
 
-
+/* =========================================================
+   START
+   ========================================================= */
 
 loadCheckoutSession();
 
+</script>
+
+</body>
+</html>
+```
+
+    
+        
 
 
-</script></body></html>
+
