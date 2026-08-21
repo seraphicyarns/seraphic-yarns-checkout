@@ -1,4 +1,3 @@
-```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -147,11 +146,17 @@ button{
       placeholder="Enter your full name"
     >
 
-    <label>Phone number</label>
-
-    <input
-      id="phone"
-      placeholder="+254 7XX XXX XXX"
+   <label>Phone number</label>
+<input
+  id="phone"
+  type="tel"
+  inputmode="tel"
+  autocomplete="tel"
+  placeholder="0717 246 440 or +254 717 246 440"
+>
+<div class="small">
+  Enter a Kenyan mobile number, e.g. 0717 246 440 or +254 717 246 440.
+</div>
     >
 
     <label>Email address</label>
@@ -391,7 +396,31 @@ button{
 
 
 <script>
+function normalizeKenyanPhone(phone) {
+  let value = String(phone || "").trim();
 
+  // Remove spaces, hyphens and brackets
+  value = value.replace(/[\s\-()]/g, "");
+
+  // Convert +2547XXXXXXXX to 07XXXXXXXX
+  if (value.startsWith("+2547")) {
+    value = "0" + value.slice(4);
+  }
+
+  // Convert 2547XXXXXXXX to 07XXXXXXXX
+  else if (value.startsWith("2547")) {
+    value = "0" + value.slice(3);
+  }
+
+  return value;
+}
+
+function validateKenyanPhone(phone) {
+  const normalized = normalizeKenyanPhone(phone);
+
+  // Kenyan mobile number: 07XXXXXXXX
+  return /^07\d{8}$/.test(normalized);
+}
 /* =========================================================
    JUMIA PICKUP STATIONS
    ========================================================= */
@@ -954,10 +983,18 @@ function collectCheckoutInformation(){
   }
 
 
-  if(!validatePhone(phone)){
+  const phoneInput =
+  document.getElementById("phone").value;
 
-    throw new Error(
-      "Please enter a valid Kenyan phone number, for example 0712345678."
+const normalizedPhone =
+  normalizeKenyanPhone(phoneInput);
+
+if (!validateKenyanPhone(phoneInput)) {
+  document.getElementById("msg").textContent =
+    "Please enter a valid Kenyan mobile number, e.g. 0717 246 440 or +254 717 246 440.";
+
+  return;
+}
     );
 
   }
